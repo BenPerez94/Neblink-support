@@ -10,7 +10,7 @@ import './stimulus_bootstrap.js';
 // @ts-ignore
 import './styles/app.css';
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus  } from 'lucide';
 
 document.addEventListener('turbo:load', () => {
     createIcons({
@@ -30,6 +30,12 @@ document.addEventListener('turbo:load', () => {
             Ban,
             Clock,
             ShieldCheck,
+            Code,
+            LayoutDashboard,
+            ShoppingCart,
+            Calendar,
+            Store,
+            Plus,
         }
     });
 });
