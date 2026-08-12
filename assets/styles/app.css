@@ -10,3 +10,28 @@
     --font-sans: "Inter", sans-serif;
 }
 
+[data-animate] {
+    opacity: 0;
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+[data-animate="down"] {
+    transform: translateY(-40px);
+}
+
+[data-animate="up"] {
+    transform: translateY(40px);
+}
+
+[data-animate="left"] {
+    transform: translateX(-40px);
+}
+
+[data-animate="right"] {
+    transform: translateX(40px);
+}
+
+[data-animate].is-visible {
+    opacity: 1;
+    transform: translate(0, 0);
+}
