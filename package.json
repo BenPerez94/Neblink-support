@@ -23,6 +23,7 @@
     "dependencies": {
         "@symfony/stimulus-bridge": "^4.0.1",
         "@tailwindcss/postcss": "^4.3.3",
+        "lucide": "^1.31.0",
         "postcss": "^8.5.26",
         "postcss-loader": "^8.2.1",
         "tailwindcss": "^4.3.3"

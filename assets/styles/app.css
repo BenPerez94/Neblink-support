@@ -1,5 +1,12 @@
 @import "tailwindcss";
 @source not "../../public";
-body {
-    background-color: lightgray;
+
+@theme {
+    --color-sage-dark: #3f6b56;
+    --color-sage: #5c8a6f;
+    --color-sage-light: #8ba888;
+
+    --font-heading: "Sora", sans-serif;
+    --font-sans: "Inter", sans-serif;
 }
+

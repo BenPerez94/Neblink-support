@@ -7,4 +7,29 @@ import './stimulus_bootstrap.js';
  */
 
 // any CSS you import will output into a single css file (app.css in this case)
+// @ts-ignore
 import './styles/app.css';
+
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck } from 'lucide';
+
+document.addEventListener('turbo:load', () => {
+    createIcons({
+        icons: {
+            Wrench,
+            Settings,
+            Lightbulb,
+            MapPin,
+            Phone,
+            Check,
+            RefreshCw,
+            ArrowRight,
+            Star,
+            User,
+            MessageCircle,
+            Receipt,
+            Ban,
+            Clock,
+            ShieldCheck,
+        }
+    });
+});

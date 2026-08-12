@@ -1,32 +1,150 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-        />
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+    
+    <title>{% block title %}Neblink — Dépannage & développement web{% endblock %}</title>
 
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600&family=Inter:wght@400;500&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-        {% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphp_hot_reload %}
-        <meta name="frankenphp-hot-reload:url" content="{{ frankenphp_hot_reload }}">
-        <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-        <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
-    </head>
-    <body>
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+    
+    <!-- {% block nav_light %}false{% endblock %} -->
+</head>
+<body class="font-sans text-slate-800 bg-[#faf9f6]">
+    
+    {# ---------- NAVBAR ---------- #}
+    <header id="site-header" class="sticky top-0 z-50 px-4 py-4 {% block header_bg %}bg-transparent{% endblock %}">
+        <nav id="site-nav" class="relative max-w-3xl mx-auto flex items-center justify-between {{ (block('nav_light') is defined and block('nav_light') == 'true') ? 'bg-white/70 border-slate-900/10 shadow-lg shadow-slate-900/5' : 'bg-white/15 border-white/30' }} backdrop-blur-md border rounded-2xl px-4 py-2.5">
+
+                <a href="{{ path('app_home') }}" class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-sage-dark flex items-center justify-center font-heading font-semibold text-sm text-white">N</div>
+                    <span id="nav-logo-text" class="font-heading font-medium text-sm {{ block('nav_light') == 'true' ? 'text-slate-800' : 'text-white' }}">Neblink</span>
+                </a>
+
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="{{ path('app_home') }}" class="nav-link text-sm transition {{ block('nav_light') == 'true' ? 'text-slate-600 hover:text-slate-900' : 'text-white/80 hover:text-white' }} {{ app.request.attributes.get('_route') == 'app_home' ? 'font-medium border-b border-current pb-0.5' }}">Dépannage</a>
+                    <a href="{{ path('app_dev_web') }}" class="nav-link text-sm transition {{ block('nav_light') == 'true' ? 'text-slate-600 hover:text-slate-900' : 'text-white/80 hover:text-white' }} {{ app.request.attributes.get('_route') == 'app_dev_web' ? 'font-medium border-b border-current pb-0.5' }}">Développement web</a>
+                    <a href="{{ path('app_about') }}" class="nav-link text-sm transition {{ block('nav_light') == 'true' ? 'text-slate-600 hover:text-slate-900' : 'text-white/80 hover:text-white' }} {{ app.request.attributes.get('_route') == 'app_about' ? 'font-medium border-b border-current pb-0.5' }}">À propos</a>
+                </div>
+
+                <a href="{{ path('app_contact') }}" id="nav-contact-btn" class="hidden md:inline-flex {{ block('nav_light') == 'true' ? 'bg-sage-dark text-white' : 'bg-white text-sage-dark' }} rounded-lg px-4 py-2 text-sm font-medium font-heading">
+                    Contact
+                </a>
+
+                <button id="burger-btn" class="md:hidden {{ block('nav_light') == 'true' ? 'text-slate-800' : 'text-white' }} p-1" aria-label="Ouvrir le menu" aria-expanded="false">
+    
+                <svg id="icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            {# Panneau mobile #}
+            <div id="mobile-panel" class="md:hidden absolute top-full left-0 right-0 mt-2 opacity-0 -translate-y-2 pointer-events-none transition-all duration-200">
+                <div class="bg-sage-dark/95 backdrop-blur-md border border-white/30 rounded-2xl p-4 flex flex-col gap-1 shadow-xl">
+                    <a href="{{ path('app_home') }}" class="py-2.5 px-2 text-sm text-white border-b border-white/20">Dépannage</a>
+                    <a href="{{ path('app_dev_web') }}" class="py-2.5 px-2 text-sm text-white/85 border-b border-white/20">Développement web</a>
+                    <a href="{{ path('app_about') }}" class="py-2.5 px-2 text-sm text-white/85 border-b border-white/20">À propos</a>
+                    <a href="{{ path('app_contact') }}" class="mt-2 bg-white text-sage-dark text-center rounded-lg py-2.5 text-sm font-medium font-heading">Contact</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    {# ---------- CONTENU DE LA PAGE ---------- #}
+    <main>
         {% block body %}{% endblock %}
-    </body>
+    </main>
+
+    {# ---------- FOOTER ---------- #}
+    <footer class="max-w-3xl mx-auto px-4 py-8 mt-16 border-t border-slate-200 flex flex-col md:flex-row items-center md:justify-between gap-3 text-center md:text-left">
+        <p class="text-xs text-slate-400">© {{ "now"|date("Y") }} Neblink — Chaumont et alentours</p>
+        <div class="flex gap-4">
+            <a href="{{ path('app_home') }}" class="text-xs text-slate-500 hover:text-sage-dark">Dépannage</a>
+            <a href="{{ path('app_dev_web') }}" class="text-xs text-slate-500 hover:text-sage-dark">Développement web</a>
+            <a href="{{ path('app_contact') }}" class="text-xs text-slate-500 hover:text-sage-dark">Contact</a>
+        </div>
+    </footer>
+</body>
+<script>
+    function initNavScript() {
+        const header = document.getElementById('site-header');
+        const nav = document.getElementById('site-nav');
+        const logoText = document.getElementById('nav-logo-text');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contactBtn = document.getElementById('nav-contact-btn');
+        const burgerBtn = document.getElementById('burger-btn');
+        const hero = document.querySelector('.hero-section');
+        const panel = document.getElementById('mobile-panel');
+        const iconOpen = document.getElementById('icon-open');
+        const iconClose = document.getElementById('icon-close');
+        let menuOpen = false;
+
+        if (burgerBtn && panel) {
+            burgerBtn.addEventListener('click', () => {
+                menuOpen = !menuOpen;
+                panel.classList.toggle('opacity-0', !menuOpen);
+                panel.classList.toggle('-translate-y-2', !menuOpen);
+                panel.classList.toggle('pointer-events-none', !menuOpen);
+                iconOpen.classList.toggle('hidden', menuOpen);
+                iconClose.classList.toggle('hidden', !menuOpen);
+                burgerBtn.setAttribute('aria-expanded', menuOpen);
+            });
+        }
+
+        function updateNavStyle() {
+            if (!hero) return;
+            const heroBottom = hero.getBoundingClientRect().bottom;
+            const isOverLightSection = heroBottom < 80;
+
+            if (nav) {
+                nav.classList.toggle('bg-white/70', isOverLightSection);
+                nav.classList.toggle('border-slate-900/10', isOverLightSection);
+                nav.classList.toggle('shadow-lg', isOverLightSection);
+                nav.classList.toggle('shadow-slate-900/5', isOverLightSection);
+                nav.classList.toggle('bg-white/15', !isOverLightSection);
+                nav.classList.toggle('border-white/30', !isOverLightSection);
+            }
+            if (logoText) {
+                logoText.classList.toggle('text-slate-800', isOverLightSection);
+                logoText.classList.toggle('text-white', !isOverLightSection);
+            }
+            navLinks.forEach(link => {
+                link.classList.toggle('text-slate-600', isOverLightSection);
+                link.classList.toggle('hover:text-slate-900', isOverLightSection);
+                link.classList.toggle('text-white/80', !isOverLightSection);
+                link.classList.toggle('hover:text-white', !isOverLightSection);
+            });
+            if (contactBtn) {
+                contactBtn.classList.toggle('bg-sage-dark', isOverLightSection);
+                contactBtn.classList.toggle('text-white', isOverLightSection);
+                contactBtn.classList.toggle('bg-white', !isOverLightSection);
+                contactBtn.classList.toggle('text-sage-dark', !isOverLightSection);
+            }
+            if (burgerBtn) {
+                burgerBtn.classList.toggle('text-slate-800', isOverLightSection);
+                burgerBtn.classList.toggle('text-white', !isOverLightSection);
+            }
+        }
+
+        window.addEventListener('scroll', updateNavStyle);
+        updateNavStyle();
+    }
+
+    document.addEventListener('turbo:load', initNavScript);
+</script>
+
+
+
 </html>

@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}À propos — Neblink{% endblock %}
+
+{% block nav_light %}true{% endblock %}
+
+{% block body %}
+
+    <section class="px-4 pt-16 pb-8  text-center">
+        <div class="max-w-xl mx-auto">
+            <p class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">À propos</p>
+            <h1 class="font-heading font-medium text-2xl md:text-3xl text-slate-800 mb-3 leading-snug">Derrière Neblink, il y a une seule personne</h1>
+            <p class="text-sm text-slate-500 leading-relaxed">Basé à Chaumont, j'aide particuliers et petites entreprises à garder leur informatique sous contrôle, sans jargon ni vente forcée.</p>
+        </div>
+
+        <div class="flex justify-center py-8">
+            <div class="w-24 h-24 rounded-full bg-linear-to-br from-sage-dark to-sage-light flex items-center justify-center">
+                <i data-lucide="user" class="w-9 h-9 text-white"></i>
+            </div>
+        </div>
+    </section>
+
+    <section class="px-4 pb-2">
+        <div class="max-w-4xl mx-auto">
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 mb-10">
+                <h2 class="font-heading font-semibold text-base text-slate-800 mb-3">Mon parcours</h2>
+                <p class="text-sm text-slate-500 leading-relaxed mb-3">
+                    Mon parcours mêle deux compétences complémentaires : plusieurs années en tant que technicien support informatique en entreprise, où j'ai géré au quotidien les pannes, les urgences et les demandes de collaborateurs pas toujours à l'aise avec la technique, et une expérience de développeur web freelance, où j'ai appris à concevoir des sites qui répondent vraiment aux besoins de mes clients.
+                </p>
+                <p class="text-sm text-slate-500 leading-relaxed">
+                    Aujourd'hui, je réunis ces deux compétences au sein de Neblink : le dépannage et le conseil informatique d'un côté, la création de sites web de l'autre. Deux métiers, une seule exigence : des solutions qui marchent vraiment, sans complications inutiles.
+                </p>
+            </div>
+
+            <h2 class="font-heading font-medium text-base text-slate-800 mb-4 text-center">Mon engagement</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-10">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4">
+                    <i data-lucide="message-circle" class="w-5 h-5 text-sage-dark mb-2.5"></i>
+                    <p class="text-sm font-medium text-slate-800 mb-1">Sans jargon</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">Des explications claires, jamais condescendantes.</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4">
+                    <i data-lucide="receipt" class="w-5 h-5 text-sage-dark mb-2.5"></i>
+                    <p class="text-sm font-medium text-slate-800 mb-1">Devis transparent</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">Le prix est annoncé avant toute intervention.</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4">
+                    <i data-lucide="ban" class="w-5 h-5 text-sage-dark mb-2.5"></i>
+                    <p class="text-sm font-medium text-slate-800 mb-1">Zéro vente forcée</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">Je conseille, je n'impose jamais un achat.</p>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-sage-dark mb-2.5"></i>
+                    <p class="text-sm font-medium text-slate-800 mb-1">Ancré localement</p>
+                    <p class="text-xs text-slate-500 leading-relaxed">Chaumont et ses environs, en priorité.</p>
+                </div>
+            </div>
+
+            <div class="bg-linear-to-br from-sage-dark via-sage to-sage-light rounded-2xl p-8 text-center">
+                <p class="font-heading font-semibold text-base text-white mb-1">Une question, un projet ?</p>
+                <p class="text-sm text-white/80 mb-5">Je réponds rapidement, sans engagement.</p>
+                <a href="{{ path('app_contact') }}" class="inline-flex bg-white text-sage-dark rounded-lg px-6 py-3 text-sm font-medium font-heading">
+                    Me contacter
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}
