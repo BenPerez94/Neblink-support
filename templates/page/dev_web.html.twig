@@ -13,12 +13,10 @@
 
         <div class="relative max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-10 items-center ">
 
-          
-
-          <svg class="absolute -top-12 -right-18 md:-right-16 opacity-40 pointer-events-none" width="250" height="250" viewBox="0 0 220 220" fill="none">
-              <circle cx="110" cy="110" r="90" stroke="#c9d9d0" stroke-width="1"/>
-              <circle cx="110" cy="110" r="55" stroke="#c9d9d0" stroke-width="1"/>
-          </svg>
+        <svg class="absolute -top-12 -right-18 md:-right-16 opacity-40 pointer-events-none" width="250" height="250" viewBox="0 0 220 220" fill="none">
+            <circle cx="110" cy="110" r="90" stroke="#c9d9d0" stroke-width="1"/>
+            <circle cx="110" cy="110" r="55" stroke="#c9d9d0" stroke-width="1"/>
+        </svg>
 
             <div data-animate class="text-center md:text-left pr-6">
                 <span class="inline-flex items-center gap-1.5 bg-sage-dark/10 rounded-full px-4 py-2 text-xs text-sage-dark font-medium mb-5">
@@ -41,20 +39,20 @@
             </div>
 
             <div data-animate="right" class="relative hidden md:block max-w-xs">
-              <div class="bg-white border border-slate-200 rounded-2xl shadow-lg shadow-slate-900/5 overflow-hidden rotate-2">
-                  <div class="flex gap-1.5 px-3 py-2 bg-slate-50 border-b border-slate-200">
-                      <div class="w-1.5 h-1.5 rounded-full bg-red-300"></div>
-                      <div class="w-1.5 h-1.5 rounded-full bg-amber-300"></div>
-                      <div class="w-1.5 h-1.5 rounded-full bg-green-300"></div>
-                  </div>
-                  <div class="h-48 bg-linear-to-br from-sage to-sage-dark flex items-center justify-center">
-                      <i data-lucide="layout-dashboard" class="w-9 h-9 text-white/85"></i>
-                  </div>
-              </div>
-              <div class="absolute -bottom-4 -left-6 bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-lg shadow-slate-900/5 flex items-center gap-2">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-sage-dark"></i>
-                  <span class="text-xs font-medium text-slate-800">Livré en 4 semaines</span>
-              </div>
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-lg shadow-slate-900/5 overflow-hidden rotate-2">
+                    <div class="flex gap-1.5 px-3 py-2 bg-slate-50 border-b border-slate-200">
+                        <div class="w-1.5 h-1.5 rounded-full bg-red-300"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-amber-300"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-green-300"></div>
+                    </div>
+                    <div class="h-48 bg-linear-to-br from-sage to-sage-dark flex items-center justify-center">
+                        <i data-lucide="layout-dashboard" class="w-9 h-9 text-white/85"></i>
+                    </div>
+                </div>
+                <div class="absolute -bottom-4 -left-6 bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-lg shadow-slate-900/5 flex items-center gap-2">
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-sage-dark"></i>
+                    <span class="text-xs font-medium text-slate-800">Livré en 4 semaines</span>
+                </div>
             </div>
         </div>
 
@@ -77,9 +75,9 @@
     {# ---------- PORTFOLIO ---------- #}
     <section id="portfolio" class="px-4 py-16 md:py-24 bg-white">
         <div class="max-w-4xl mx-auto">
-            <div data-animate="up"class="text-center max-w-lg mx-auto mb-12">
-                <p class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Réalisations</p>
-                <h2 class="font-heading font-semibold text-2xl md:text-3xl text-slate-800">Quelques projets récents</h2>
+            <div class="text-center max-w-lg mx-auto mb-12">
+                <p data-animate="down" class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Réalisations</p>
+                <h2 data-animate="up" class="font-heading font-semibold text-2xl md:text-3xl text-slate-800">Quelques projets récents</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -130,11 +128,11 @@
     <section class="px-4 pt-16 md:pt-24 bg-[#faf9f6]">
         <div class="max-w-4xl mx-auto">
             <div class="text-center max-w-lg mx-auto mb-12">
-                <p class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Méthode</p>
-                <h2 class="font-heading font-semibold text-2xl md:text-3xl text-slate-800">Comment on travaille ensemble</h2>
+                <p data-animate="down" class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Méthode</p>
+                <h2 data-animate="up" class="font-heading font-semibold text-2xl md:text-3xl text-slate-800">Comment on travaille ensemble</h2>
             </div>
 
-            <div class="relative flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-x-4 max-w-3xl mx-auto mb-16">
+            <div data-animate class="relative flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-x-4 max-w-3xl mx-auto mb-16">
                 <div class="hidden md:block absolute top-5 left-[12%] right-[12%] h-px bg-slate-200"></div>
 
                 <div class="relative flex md:flex-col items-center md:text-center gap-4 md:gap-0">
@@ -170,7 +168,7 @@
                 </div>
             </div>
 
-            <div class="max-w-2xl mx-auto bg-linear-to-br from-sage-dark via-sage to-sage-light rounded-3xl p-8 md:p-10 text-center">
+            <div data-animate="up" class="max-w-2xl mx-auto bg-linear-to-br from-sage-dark via-sage to-sage-light rounded-3xl p-8 md:p-10 text-center">
                 <h2 class="font-heading font-semibold text-xl md:text-2xl text-white mb-2">Un projet en tête ?</h2>
                 <p class="text-sm text-white/80 mb-6">Parlons-en autour d'un café ou d'un appel, sans engagement.</p>
                 <a href="{{ path('app_contact') }}" class="inline-flex bg-white text-sage-dark font-heading font-medium text-sm rounded-xl px-7 py-3.5">

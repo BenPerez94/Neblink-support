@@ -182,11 +182,11 @@
 
             {# Comment ça marche #}
             <div class="text-center max-w-lg mx-auto mb-12">
-                <p class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Comment ça marche</p>
-                <h2 class="font-heading font-medium text-2xl md:text-3xl text-slate-800">Simple, rapide, sans surprise</h2>
+                <p data-animate="down" class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Comment ça marche</p>
+                <h2 data-animate="up" class="font-heading font-medium text-2xl md:text-3xl text-slate-800">Simple, rapide, sans surprise</h2>
             </div>
 
-            <div class="relative flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-x-4 max-w-3xl mx-auto mb-20">
+            <div data-animate class="relative flex flex-col md:grid md:grid-cols-4 gap-4 md:gap-x-4 max-w-3xl mx-auto mb-20">
                 {# Ligne de connexion entre les étapes, desktop uniquement #}
                 <div class="hidden md:block absolute top-5 left-[12%] right-[12%] h-px bg-slate-200"></div>
 
@@ -213,24 +213,24 @@
 
             {# Tarifs #}
             <div class="flex flex-col md:grid md:grid-cols-3 gap-3 md:gap-5 max-w-2xl mx-auto">
-                <div class="flex md:block items-center md:text-center justify-between border border-slate-200 rounded-2xl px-6 py-4 md:p-6">
+                <div data-animate="left" class="flex md:block items-center md:text-center justify-between border border-slate-200 rounded-2xl px-6 py-4 md:p-6">
                     <p class="text-sm text-slate-500 md:mb-2">Diagnostic</p>
                     <p class="font-heading font-semibold text-lg md:text-xl text-slate-800">Gratuit</p>
                 </div>
 
-                <div class="relative flex md:block items-center md:text-center justify-between border-2 border-sage-dark rounded-2xl px-6 py-4 md:p-6">
+                <div data-animate class="relative flex md:block items-center md:text-center justify-between border-2 border-sage-dark rounded-2xl px-6 py-4 md:p-6">
                     <span class="absolute -top-3 left-6 md:left-1/2 md:-translate-x-1/2 bg-sage-dark text-white text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap">Populaire</span>
                     <p class="text-sm text-slate-500 md:mb-2">À distance</p>
                     <p class="font-heading font-semibold text-lg md:text-xl text-slate-800">dès 29€</p>
                 </div>
 
-                <div class="flex md:block items-center md:text-center justify-between border border-slate-200 rounded-2xl px-6 py-4 md:p-6">
+                <div data-animate="right" class="flex md:block items-center md:text-center justify-between border border-slate-200 rounded-2xl px-6 py-4 md:p-6">
                     <p class="text-sm text-slate-500 md:mb-2">Sur place</p>
                     <p class="font-heading font-semibold text-lg md:text-xl text-slate-800">dès 49€</p>
                 </div>
             </div>
 
-            <p class="text-center text-sm text-slate-400 mt-6">Devis personnalisé pour les professionnels</p>
+            <p data-animate class="text-center text-sm text-slate-400 mt-6">Devis personnalisé pour les professionnels</p>
 
         </div>
     </section>
@@ -242,12 +242,12 @@
             {# À propos + avis #}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-6 md:mb-16">
                 <div>
-                    <p class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">À propos</p>
-                    <h2 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-3">Pourquoi me faire confiance</h2>
-                    <p class="text-sm text-slate-500 leading-relaxed">Indépendant basé à Chaumont, j'aide particuliers et petites entreprises à résoudre leurs problèmes informatiques. Pas de jargon compliqué, pas de vente forcée : juste une solution qui marche.</p>
+                    <p data-animate="down" class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">À propos</p>
+                    <h2 data-animate="left" class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-3">Pourquoi me faire confiance</h2>
+                    <p data-animate="left" class="text-sm text-slate-500 leading-relaxed">Indépendant basé à Chaumont, j'aide particuliers et petites entreprises à résoudre leurs problèmes informatiques. Pas de jargon compliqué, pas de vente forcée : juste une solution qui marche.</p>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 mt-0 md:mt-12">
+                <div data-animate="right" class="bg-white border border-slate-200 rounded-2xl p-5 mt-0 md:mt-12">
                     <div class="flex items-center gap-2 mb-3">
                         <i data-lucide="shield-check" class="w-5 h-5 text-sage-dark"></i>
                         <p class="font-heading font-medium text-sm text-slate-800">Mon engagement</p>
@@ -270,7 +270,7 @@
             </div>
 
             {# Formulaire de contact #}
-            <div class="bg-white border border-slate-200 rounded-3xl p-8 max-w-lg mx-auto text-center">
+            <div data-animate="up" class="bg-white border border-slate-200 rounded-3xl p-8 max-w-lg mx-auto text-center">
                 <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1.5">Contact</p>
                 <h2 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-3">Un problème informatique ?</h2>
                 <p class="text-sm text-slate-500 mb-6">Décrivez-moi votre besoin, je vous réponds rapidement.</p>
