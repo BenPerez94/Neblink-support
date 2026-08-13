@@ -26,6 +26,7 @@
         "lucide": "^1.31.0",
         "postcss": "^8.5.26",
         "postcss-loader": "^8.2.1",
+        "sweetalert2": "^11.26.25",
         "tailwindcss": "^4.3.3"
     }
 }

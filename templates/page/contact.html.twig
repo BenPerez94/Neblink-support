@@ -16,51 +16,58 @@
 
     <section class="px-4 py-10 md:py-16">
         <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-8 items-start">
+                <div style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-3xl p-6 md:p-10 shadow-xl shadow-slate-900/5">
+                    {{ form_start(contactForm) }}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                {{ form_label(contactForm.nom, null, {'label_attr': {'class': 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2'}}) }}
+                                {{ form_widget(contactForm.nom) }}
+                            </div>
+                            <div>
+                                {{ form_label(contactForm.telephone, null, {'label_attr': {'class': 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2'}}) }}
+                                {{ form_widget(contactForm.telephone) }}
+                            </div>
+                        </div>
 
-            <div data-animate="left" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-10">
-                <form method="post" action="#">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <input type="text" name="nom" placeholder="Nom" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-sage-dark transition">
-                        <input type="tel" name="telephone" placeholder="Téléphone" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-base text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-sage-dark transition">
-                    </div>
+                        <div class="mb-5">
+                            {{ form_label(contactForm.typeBesoin, null, {'label_attr': {'class': 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2'}}) }}
+                            {{ form_widget(contactForm.typeBesoin) }}
+                        </div>
 
-                    <select name="type_besoin" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-base text-slate-800 mb-4 focus:outline-none focus:border-sage-dark transition">
-                        <option>Type de besoin</option>
-                        <option>Dépannage</option>
-                        <option>Développement web</option>
-                        <option>Autre</option>
-                    </select>
+                        <div class="mb-7">
+                            {{ form_label(contactForm.message, null, {'label_attr': {'class': 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2'}}) }}
+                            {{ form_widget(contactForm.message) }}
+                        </div>
 
-                    <textarea name="message" placeholder="Décrivez votre besoin" rows="6" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-base text-slate-800 placeholder:text-slate-400 mb-5 resize-none focus:outline-none focus:border-sage-dark transition"></textarea>
+                        <button type="submit" class="w-full bg-linear-to-r from-sage-dark to-sage text-white font-heading font-semibold text-base rounded-xl py-4 cursor-pointer hover:opacity-90 transition">
+                            Envoyer ma demande
+                        </button>
+                    {{ form_end(contactForm) }}
+                </div>
 
-                    <button type="submit" class="w-full bg-sage-dark text-white font-heading font-medium text-base rounded-xl py-4">
-                        Envoyer ma demande
-                    </button>
-                </form>
-            </div>
 
             <div data-animate="right" class="flex flex-col gap-3">
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex gap-3 items-start">
+                <div style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-2xl p-4 flex gap-3 items-start shadow-lg shadow-slate-900/8">
                     <div class="w-9 h-9 shrink-0 rounded-lg bg-sage-dark/10 flex items-center justify-center">
                         <i data-lucide="phone" class="w-4 h-4 text-sage-dark"></i>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-slate-800">Par téléphone</p>
-                        <p class="text-xs text-slate-500">06 XX XX XX XX</p>
+                        <p class="text-xs text-slate-500">07 44 47 69 07</p>
                     </div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex gap-3 items-start">
+                <div style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-2xl p-4 flex gap-3 items-start shadow-lg shadow-slate-900/8">
                     <div class="w-9 h-9 shrink-0 rounded-lg bg-sage-dark/10 flex items-center justify-center">
                         <i data-lucide="clock" class="w-4 h-4 text-sage-dark"></i>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-slate-800">Disponibilité</p>
-                        <p class="text-xs text-slate-500">Lun–Sam, 8h–19h</p>
+                        <p class="text-xs text-slate-500">Lun–Ven, 8h–20h</p>
                     </div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex gap-3 items-start">
+                <div style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-2xl p-4 flex gap-3 items-start shadow-lg shadow-slate-900/8">
                     <div class="w-9 h-9 shrink-0 rounded-lg bg-sage-dark/10 flex items-center justify-center">
                         <i data-lucide="map-pin" class="w-4 h-4 text-sage-dark"></i>
                     </div>
@@ -70,7 +77,7 @@
                     </div>
                 </div>
 
-                <div class="bg-linear-to-br from-sage-dark to-sage rounded-2xl p-4">
+                <div class="bg-linear-to-br from-sage-dark to-sage rounded-2xl p-4 shadow-lg shadow-slate-900/8">
                     <p class="text-sm font-medium text-white mb-1">Urgence ?</p>
                     <p class="text-xs text-white/80">Appelez directement, c'est souvent plus rapide.</p>
                 </div>

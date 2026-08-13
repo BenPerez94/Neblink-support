@@ -35,3 +35,14 @@
     opacity: 1;
     transform: translate(0, 0);
 }
+
+.neblink-toast {
+    border-radius: 14px !important;
+    font-family: "Inter", sans-serif !important;
+    box-shadow: 0 12px 32px rgba(63, 107, 86, 0.15) !important;
+    padding: 14px 18px !important;
+}
+.neblink-toast .swal2-title {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}

@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page introuvable — Neblink{% endblock %}
+
+{% block nav_light %}true{% endblock %}
+
+{% block body %}
+
+    <section class="px-4 py-24 md:py-32 text-center">
+        <div class="max-w-md mx-auto">
+
+            {# Réutilise la mosaïque du logo, agrandie et éclaircie #}
+            <div class="flex justify-center mb-8">
+                <svg width="90" height="90" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" class="opacity-60">
+                    <rect x="16" y="16" width="46" height="46" rx="6" fill="#3f6b56"/>
+                    <rect x="158" y="16" width="46" height="46" rx="6" fill="#3f6b56"/>
+                    <rect x="111" y="63" width="46" height="46" rx="6" fill="#4e7a63"/>
+                    <rect x="158" y="63" width="46" height="46" rx="6" fill="#4e7a63"/>
+                    <rect x="64" y="110" width="46" height="46" rx="6" fill="#8ba888"/>
+                    <rect x="111" y="110" width="46" height="46" rx="6" fill="#5c8a6f"/>
+                    <rect x="158" y="110" width="46" height="46" rx="6" fill="#5c8a6f"/>
+                    <rect x="16" y="157" width="46" height="46" rx="6" fill="#a9d9bd"/>
+                    <rect x="64" y="157" width="46" height="46" rx="6" fill="#8ba888"/>
+                    <rect x="111" y="157" width="46" height="46" rx="6" fill="#6b9a7a"/>
+                    <rect x="158" y="157" width="46" height="46" rx="6" fill="#6b9a7a"/>
+                </svg>
+            </div>
+
+            <p class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Erreur 404</p>
+            <h1 class="font-heading font-medium text-2xl md:text-3xl text-slate-800 mb-3">Cette page n'existe pas</h1>
+            <p class="text-sm text-slate-500 leading-relaxed mb-8">
+                Le lien est peut-être cassé, ou la page a été déplacée. Pas de panique, tout le reste du site fonctionne très bien.
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-3 justify-center">
+                <a href="{{ path('app_home') }}" class="bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-6 py-3.5">
+                    Retour à l'accueil
+                </a>
+                <a href="{{ path('app_contact') }}" class="bg-white border border-slate-200 text-slate-700 font-medium text-sm rounded-xl px-6 py-3.5">
+                    Signaler un problème
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}

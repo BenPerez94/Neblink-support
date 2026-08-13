@@ -12,13 +12,9 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Neblink">
-    <meta property="og:title" content="{% block og_title %}{{ block('title') }}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{{ block('meta_description') }}{% endblock %}">
-    <meta property="og:url" content="https://www.neblink.fr{{ app.request.pathInfo }}">
-    <meta property="og:image" content="{{ absolute_url(asset('images/og-image.jpg')) }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
+    
     
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
@@ -50,11 +46,26 @@
             "@type": "LocalBusiness",
             "name": "Neblink",
             "description": "Dépannage informatique et développement web à Chaumont",
+            "telephone": "+33744476907",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Chaumont",
+                "addressRegion": "Grand Est",
+                "addressCountry": "FR"
+            },
             "areaServed": "Chaumont et alentours",
-            "url": "https://www.neblink.fr"
+            "openingHours": "Mo-Fri 08:00-20:00",
+            "url": "https://www.neblink.fr",
+            "image": "https://www.neblink.fr/images/og-image.jpg"
         }
     </script>
 </head>
+{% for message in app.flashes('success') %}
+    <div data-flash-type="success" data-flash-message="{{ message }}" class="hidden"></div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div data-flash-type="error" data-flash-message="{{ message }}" class="hidden"></div>
+{% endfor %}
 <body class="font-sans text-slate-800 bg-[#faf9f6]">
     
     {# ---------- NAVBAR ---------- #}
@@ -201,9 +212,39 @@
 
         elements.forEach(el => observer.observe(el));
     }
+    function initFlashToasts() {
+        document.querySelectorAll('[data-flash-message]').forEach(el => {
+            const type = el.dataset.flashType;
+            const isSuccess = type !== 'error';
 
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: isSuccess ? 'success' : 'error',
+                title: el.dataset.flashMessage,
+                showConfirmButton: false,
+                timer: 6000,
+                timerProgressBar: true,
+                background: '#ffffff',
+                color: '#1f2b26',
+                iconColor: isSuccess ? '#3f6b56' : '#c86b6b',
+                customClass: {
+                    popup: 'neblink-toast',
+                },
+            });
+        });
+    }
+
+
+    if (!window.__neblinkInit) {
     document.addEventListener('turbo:load', initNavScript);
     document.addEventListener('turbo:load', initScrollAnimations);
+    document.addEventListener('turbo:load', initFlashToasts);
+    document.addEventListener('turbo:before-cache', () => {
+        document.querySelectorAll('[data-flash-message]').forEach(el => el.remove());
+    });
+    window.__neblinkInit = true;
+}
 
 </script>
 
