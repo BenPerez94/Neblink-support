@@ -1,0 +1,81 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Tableau de bord — Admin Neblink{% endblock %}
+
+{% block admin_content %}
+
+{% set avatarColors = [
+    'bg-teal-500/10 text-teal-600',
+    'bg-cyan-500/10 text-cyan-600',
+    'bg-violet-500/10 text-violet-600',
+    'bg-purple-500/10 text-purple-600',
+    'bg-fuchsia-500/10 text-fuchsia-600',
+    'bg-rose-500/10 text-rose-600',
+    'bg-orange-700/10 text-orange-800',
+    'bg-indigo-500/10 text-indigo-600',
+    'bg-teal-700/10 text-teal-800',
+    'bg-cyan-700/10 text-cyan-800'
+] %}
+
+    <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Admin</p>
+    <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-6">Vue d'ensemble</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        <div class="bg-white rounded-2xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-sage-dark/10 flex items-center justify-center mb-2.5">
+                <i data-lucide="mail" class="w-4 h-4 text-sage-dark"></i>
+            </div>
+            <p class="font-heading font-semibold text-xl text-slate-800">{{ nouveauxMessages }}</p>
+            <p class="text-xs text-slate-400 mt-0.5">Messages non traités</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-amber-400/15 flex items-center justify-center mb-2.5">
+                <i data-lucide="clock" class="w-4 h-4 text-amber-600"></i>
+            </div>
+            <p class="font-heading font-semibold text-xl text-slate-800">{{ enCoursMessages }}</p>
+            <p class="text-xs text-slate-400 mt-0.5">En cours</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-green-400/15 flex items-center justify-center mb-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-green-600"></i>
+            </div>
+            <p class="font-heading font-semibold text-xl text-slate-800">{{ traitesCeMois }}</p>
+            <p class="text-xs text-slate-400 mt-0.5">Traités ce mois</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+            <p class="text-sm font-medium text-slate-800">Derniers messages</p>
+            <a href="{{ path('admin_messages') }}" class="text-xs text-sage-dark font-medium">Voir tout →</a>
+        </div>
+        {% for contact in derniersMessages %}
+            
+                <a href="{{ path('admin_messages', {open: contact.id}) }}" class="flex items-center gap-3 px-5 py-3 {% if not loop.last %}border-b border-slate-50{% endif %} {{ contact.statut == 'nouveau' ? 'border-l-[3px] border-l-sage-dark' : 'border-l-[3px] border-l-transparent' }} hover:bg-[#faf9f6] transition cursor-pointer">
+                    <div class="w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold {{ avatarColors[contact.id % avatarColors|length] }}">
+                        {{ contact.nom|slice(0, 1)|upper }}{{ contact.nom|split(' ')|last|slice(0, 1)|upper }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-slate-800 truncate">{{ contact.nom }}</p>
+                        <p class="text-xs text-slate-400">{{ contact.typeBesoin|replace({'_': ' '})|capitalize }} · {{ contact.createdAt|date('d/m à H:i') }}</p>
+                    </div>
+                    <span class="shrink-0 flex items-center gap-1.5 text-[10.5px] font-medium px-2.5 py-1 rounded-full
+                        {{ contact.statut == 'nouveau' ? 'bg-green-100 text-green-700' : '' }}
+                        {{ contact.statut == 'vu' ? 'bg-blue-100 text-blue-700' : '' }}
+                        {{ contact.statut == 'en_cours' ? 'bg-amber-100 text-amber-700' : '' }}
+                        {{ contact.statut == 'traite' ? 'bg-slate-100 text-slate-500' : '' }}">
+                        <span class="w-1.5 h-1.5 rounded-full
+                            {{ contact.statut == 'nouveau' ? 'bg-green-500' : '' }}
+                            {{ contact.statut == 'vu' ? 'bg-blue-500' : '' }}
+                            {{ contact.statut == 'en_cours' ? 'bg-amber-500' : '' }}
+                            {{ contact.statut == 'traite' ? 'bg-slate-400' : '' }}"></span>
+                        {{ contact.statut|replace({'_': ' '})|capitalize }}
+                    </span>
+                </a>
+            
+        {% else %}
+            <p class="text-sm text-slate-400 text-center py-10">Aucun message pour le moment.</p>
+        {% endfor %}
+    </div>
+
+{% endblock %}

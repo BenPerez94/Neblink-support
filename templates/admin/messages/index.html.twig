@@ -1,0 +1,116 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Messages — Admin Neblink{% endblock %}
+
+{% block admin_content %}
+
+{% set avatarColors = [
+    'bg-teal-500/10 text-teal-600',
+    'bg-cyan-500/10 text-cyan-600',
+    'bg-violet-500/10 text-violet-600',
+    'bg-purple-500/10 text-purple-600',
+    'bg-fuchsia-500/10 text-fuchsia-600',
+    'bg-rose-500/10 text-rose-600',
+    'bg-orange-700/10 text-orange-800',
+    'bg-indigo-500/10 text-indigo-600',
+    'bg-teal-700/10 text-teal-800',
+    'bg-cyan-700/10 text-cyan-800'
+] %}
+
+    <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Admin</p>
+    <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-6">Messages reçus</h1>
+
+    {% if contacts is empty %}
+        <p class="text-sm text-slate-400 text-center py-16">Aucun message pour le moment.</p>
+    {% else %}
+        <div class="bg-white rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-[300px_1fr] min-h-[calc(100vh-160px)]">
+            {% set openId = app.request.query.get('open') %}
+            {# Colonne liste #}
+            <div class="border-b md:border-b-0 md:border-r border-slate-100 overflow-y-auto max-h-[calc(100vh-160px)]">
+                {% for contact in contacts %}
+                    <button
+                        type="button"
+                        data-message-item
+                        data-target="msg-{{ contact.id }}"
+                        data-statut="{{ contact.statut }}"
+                        class="w-full text-left px-4 py-3 border-b border-slate-50 cursor-pointer hover:bg-[#faf9f6] transition border-l-[3px]
+                            {{ (openId and contact.id == openId) or (not openId and loop.first) ? 'is-active bg-teal-500/10 border-l-teal-500 shadow-[inset_0_0_0_1px_rgba(20,184,166,0.2)]' : (contact.statut == 'nouveau' ? 'border-l-sage-dark bg-sage-dark/5' : 'border-l-transparent') }}"
+                    >
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-[10px] font-medium {{ avatarColors[contact.id % avatarColors|length] }}">
+                                {{ contact.nom|slice(0, 1)|upper }}{{ contact.nom|split(' ')|last|slice(0, 1)|upper }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <p class="text-[13px] font-medium text-slate-800 truncate">{{ contact.nom }}</p>
+                                    <span class="w-1.5 h-1.5 rounded-full shrink-0
+                                        {{ contact.statut == 'nouveau' ? 'bg-green-500' : '' }}
+                                        {{ contact.statut == 'vu' ? 'bg-blue-500' : '' }}
+                                        {{ contact.statut == 'en_cours' ? 'bg-amber-500' : '' }}
+                                        {{ contact.statut == 'traite' ? 'bg-slate-400' : '' }}"></span>
+                                </div>
+                                <p class="text-[10.5px] text-slate-400 mt-0.5">{{ contact.typeBesoin|replace({'_': ' '})|capitalize }} · {{ contact.createdAt|date('d/m') }}</p>
+                            </div>
+                        </div>
+                    </button>
+                {% endfor %}
+            </div>
+
+            {# Colonne détail #}
+            <div class="p-5 md:p-6">
+                {% for contact in contacts %}
+                    <div id="msg-{{ contact.id }}" data-message-detail class="{{ (openId and contact.id == openId) or (not openId and loop.first) ? '' : 'hidden' }}">
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div>
+                                <p class="font-heading font-semibold text-base text-slate-800">{{ contact.nom }}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">
+                                    {{ contact.email }}{% if contact.telephone %} · {{ contact.telephone }}{% endif %} · {{ contact.createdAt|date('d/m/Y à H:i') }}
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                {% if contact.statut == 'nouveau' %}
+                                    <form method="post" action="{{ path('admin_message_update_statut', {id: contact.id}) }}">
+                                        <input type="hidden" name="statut" value="vu">
+                                        <button type="submit" title="Marquer comme vu" class="w-7 h-6 flex items-center justify-center bg-blue-500/80 text-white rounded-xl cursor-pointer hover:bg-blue-600 transition">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <span class="flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full
+                                    {{ contact.statut == 'nouveau' ? 'bg-green-100 text-green-700' : '' }}
+                                    {{ contact.statut == 'vu' ? 'bg-blue-100 text-blue-700' : '' }}
+                                    {{ contact.statut == 'en_cours' ? 'bg-amber-100 text-amber-700' : '' }}
+                                    {{ contact.statut == 'traite' ? 'bg-slate-100 text-slate-500' : '' }}">
+                                    <span class="w-1.5 h-1.5 rounded-full
+                                        {{ contact.statut == 'nouveau' ? 'bg-green-500' : '' }}
+                                        {{ contact.statut == 'vu' ? 'bg-blue-500' : '' }}
+                                        {{ contact.statut == 'en_cours' ? 'bg-amber-500' : '' }}
+                                        {{ contact.statut == 'traite' ? 'bg-slate-400' : '' }}"></span>
+                                    {{ contact.statut|replace({'_': ' '})|capitalize }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-slate-600 leading-relaxed bg-[#faf9f6] rounded-xl p-4 mb-4 whitespace-pre-line">
+                            {{ contact.message }}
+                        </p>
+
+                        <form method="post" action="{{ path('admin_message_update_statut', {id: contact.id}) }}" class="flex items-center gap-2">
+                            <select name="statut" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 w-32 focus:outline-none focus:border-sage-dark">
+                                <option value="nouveau" {{ contact.statut == 'nouveau' ? 'selected' }}>Nouveau</option>
+                                <option value="vu" {{ contact.statut == 'vu' ? 'selected' }}>Vu</option>
+                                <option value="en_cours" {{ contact.statut == 'en_cours' ? 'selected' }}>En cours</option>
+                                <option value="traite" {{ contact.statut == 'traite' ? 'selected' }}>Traité</option>
+                            </select>
+                            <button type="submit" title="Mettre à jour" class="w-7 h-6 flex items-center justify-center bg-sage-dark text-white rounded-xl cursor-pointer hover:opacity-90 transition">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    {% endif %}
+
+{% endblock %}

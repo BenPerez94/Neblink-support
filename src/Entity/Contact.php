@@ -31,10 +31,13 @@ class Contact
 
     #[ORM\Column(length: 20)]
     private ?string $statut = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $email = null;
     
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $this->statut = 'nouveau';
     }
 
@@ -111,6 +114,18 @@ class Contact
     public function setStatut(string $statut): static
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
 
         return $this;
     }

@@ -16,7 +16,7 @@
 
     <section class="px-4 py-10 md:py-16">
         <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-8 items-start">
-                <div style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-3xl p-6 md:p-10 shadow-xl shadow-slate-900/5">
+                <div data-animate="left"style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-3xl p-6 md:p-10 shadow-xl shadow-slate-900/5">
                     {{ form_start(contactForm) }}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                             <div>
@@ -27,6 +27,11 @@
                                 {{ form_label(contactForm.telephone, null, {'label_attr': {'class': 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2'}}) }}
                                 {{ form_widget(contactForm.telephone) }}
                             </div>
+                        </div>
+
+                        <div class="mb-5">
+                            {{ form_label(contactForm.email, null, {'label_attr': {'class': 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2'}}) }}
+                            {{ form_widget(contactForm.email) }}
                         </div>
 
                         <div class="mb-5">
