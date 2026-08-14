@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentions légales — Neblink{% endblock %}
+{% block meta_description %}Mentions légales du site Neblink — dépannage informatique et développement web à Chaumont.{% endblock %}
+
+{% block nav_light %}true{% endblock %}
+
+{% block body %}
+
+    <section class="px-4 py-16 md:py-24">
+        <div class="max-w-2xl mx-auto">
+
+            <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-3">Informations légales</p>
+            <h1 class="font-heading font-semibold text-2xl md:text-3xl text-slate-800 mb-10">Mentions légales</h1>
+
+            <div class="prose-sm text-sm text-slate-600 leading-relaxed space-y-8">
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Éditeur du site</h2>
+                    <p>
+                        Le site neblink.fr est édité par Benjamin Perez, entrepreneur individuel exerçant sous le
+                        statut de micro-entreprise.
+                    </p>
+                    <ul class="mt-2 space-y-1">
+                        <li>Nom : Benjamin Perez</li>
+                        <li>SIRET : 824 832 463 00031</li>
+                        <li>Adresse : Rimaucourt, 52700</li>
+                        <li>Email : benjamin.perez@neblink.fr</li>
+                        <li>Téléphone : 07 44 47 69 07</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Directeur de la publication</h2>
+                    <p>Benjamin Perez, en qualité d'éditeur du site.</p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Hébergement</h2>
+                    <p>Le site est hébergé par :</p>
+                    <ul class="mt-2 space-y-1">
+                        <li>O2SWITCH — SAS au capital de 100 000 €</li>
+                        <li>Siège social : Chemin des Pardiaux, 63000 Clermont-Ferrand, France</li>
+                        <li>RCS Clermont-Ferrand — SIREN 510 909 807</li>
+                        <li>Téléphone : 04 44 44 60 40</li>
+                        <li>Site web : <a href="https://www.o2switch.fr" target="_blank" rel="noopener" class="text-sage-dark hover:underline">www.o2switch.fr</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Propriété intellectuelle</h2>
+                    <p>
+                        L'ensemble des contenus présents sur ce site (textes, logo, mise en page, structure) est
+                        protégé par le droit d'auteur. Toute reproduction, même partielle, est soumise à autorisation
+                        préalable.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Données personnelles</h2>
+                    <p>
+                        Les informations relatives à la collecte et au traitement de vos données personnelles sont
+                        détaillées dans notre
+                        <a href="{{ path('app_confidentialite') }}" class="text-sage-dark hover:underline">politique de confidentialité</a>.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Contact</h2>
+                    <p>
+                        Pour toute question relative au site ou à son contenu, vous pouvez me contacter à l'adresse
+                        contact@neblink.fr ou via le
+                        <a href="{{ path('app_contact') }}" class="text-sage-dark hover:underline">formulaire de contact</a>.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}

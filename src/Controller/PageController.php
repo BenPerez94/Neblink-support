@@ -64,4 +64,16 @@ final class PageController extends AbstractController
             'contactForm' => $form,
         ]);
     }
+
+    #[Route('/mentions-legales', name: 'app_mentions_legales')]
+    public function mentionsLegales(): Response
+    {
+        return $this->render('page/mentions-legales.html.twig');
+    }
+
+    #[Route('/politique-de-confidentialite', name: 'app_confidentialite')]
+    public function confidentialite(): Response
+    {
+        return $this->render('page/confidentialite.html.twig');
+    }
 }

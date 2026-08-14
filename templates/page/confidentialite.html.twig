@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Politique de confidentialité — Neblink{% endblock %}
+{% block meta_description %}Politique de confidentialité et protection des données personnelles du site Neblink.{% endblock %}
+
+{% block nav_light %}true{% endblock %}
+
+{% block body %}
+
+    <section class="px-4 py-16 md:py-24">
+        <div class="max-w-2xl mx-auto">
+
+            <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-3">Informations légales</p>
+            <h1 class="font-heading font-semibold text-2xl md:text-3xl text-slate-800 mb-3">Politique de confidentialité</h1>
+            <p class="text-xs text-slate-400 mb-10">Dernière mise à jour : {{ "now"|date("d/m/Y") }}</p>
+
+            <div class="prose-sm text-sm text-slate-600 leading-relaxed space-y-8">
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Responsable du traitement</h2>
+                    <p>
+                        Benjamin Perez, entrepreneur individuel (SIRET 824 832 463 00031), est responsable du
+                        traitement des données personnelles collectées sur le site neblink.fr. Pour toute question,
+                        contactez contact@neblink.fr.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Données collectées</h2>
+                    <p>Le site collecte des données personnelles dans les cas suivants :</p>
+                    <ul class="mt-2 space-y-1.5 list-disc pl-5">
+                        <li>
+                            <strong>Formulaire de contact</strong> : nom, email, téléphone (optionnel), type de
+                            besoin et message que vous saisissez.
+                        </li>
+                        <li>
+                            <strong>Espace client</strong> : nom, email, téléphone, mot de passe (stocké sous forme
+                            chiffrée), ainsi que les informations liées à vos projets et documents (devis, factures)
+                            si vous disposez d'un compte client.
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Finalité du traitement</h2>
+                    <p>Ces données sont utilisées uniquement pour :</p>
+                    <ul class="mt-2 space-y-1.5 list-disc pl-5">
+                        <li>Répondre à vos demandes de contact ou de devis</li>
+                        <li>Assurer le suivi de vos projets et interventions dans le cadre d'une relation client</li>
+                        <li>Vous permettre d'accéder à votre espace client sécurisé</li>
+                    </ul>
+                    <p class="mt-2">
+                        Aucune donnée n'est vendue, louée ou transmise à des tiers à des fins commerciales.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Durée de conservation</h2>
+                    <p>
+                        Les données issues du formulaire de contact sont conservées le temps nécessaire au
+                        traitement de votre demande, puis archivées ou supprimées dans un délai raisonnable si aucune
+                        suite n'est donnée. Les données liées à un compte client sont conservées pendant toute la
+                        durée de la relation commerciale, puis pendant la durée légale de conservation des documents
+                        commerciaux et comptables (10 ans pour les factures).
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Hébergement des données</h2>
+                    <p>
+                        Les données sont stockées sur les serveurs d'O2switch, hébergeur situé en France (Clermont-
+                        Ferrand). Aucune donnée n'est transférée en dehors de l'Union européenne dans le cadre de
+                        l'hébergement du site.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Polices de caractères</h2>
+                    <p>
+                        Le site charge les polices Sora et Inter depuis les serveurs de Google (Google Fonts), ce qui
+                        entraîne un transfert de votre adresse IP à Google au moment du chargement de la page.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Cookies</h2>
+                    <p>
+                        Le site utilise uniquement des cookies techniques strictement nécessaires à son
+                        fonctionnement (maintien de connexion à l'espace client ou à l'administration, sécurité des
+                        formulaires). Ces cookies ne nécessitent pas de consentement préalable et ne sont pas
+                        utilisés à des fins de suivi publicitaire ou statistique.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="font-heading font-medium text-base text-slate-800 mb-2">Vos droits</h2>
+                    <p>
+                        Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un
+                        droit d'accès, de rectification, de suppression et de portabilité de vos données, ainsi que
+                        d'un droit d'opposition et de limitation du traitement. Pour exercer ces droits, contactez
+                        contact@neblink.fr en précisant votre demande. Vous disposez également du droit
+                        d'introduire une réclamation auprès de la CNIL (www.cnil.fr).
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}
