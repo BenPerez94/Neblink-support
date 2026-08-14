@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, ExternalLink  } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, ExternalLink, Trash2, MoreVertical  } from 'lucide';
 
 document.addEventListener('turbo:load', () => {
     createIcons({
@@ -42,7 +42,9 @@ document.addEventListener('turbo:load', () => {
             Mail,
             LogOut,
             Eye,
-            ExternalLink
+            ExternalLink,
+            Trash2,
+            MoreVertical
         }
     });
 });
@@ -162,9 +164,9 @@ function initAdminMessagesPanel() {
 
     items.forEach(item => {
         item.addEventListener('click', () => {
+            // --- Comportement desktop (colonnes) : inchangé ---
             items.forEach(i => {
                 i.classList.remove('is-active', 'bg-teal-500/10', 'border-l-teal-500', 'shadow-[inset_0_0_0_1px_rgba(20,184,166,0.2)]', 'bg-sage-dark/5', 'border-l-transparent', 'border-l-sage-dark');
-
                 if (i.dataset.statut === 'nouveau') {
                     i.classList.add('border-l-sage-dark', 'bg-sage-dark/5');
                 } else {
@@ -180,7 +182,88 @@ function initAdminMessagesPanel() {
             });
             const target = document.getElementById(item.dataset.target);
             if (target) target.classList.remove('hidden');
+
+            // --- Comportement mobile (accordéon) ---
+            const mobileTarget = document.getElementById(item.dataset.mobileTarget);
+            if (mobileTarget) {
+                const wasOpen = !mobileTarget.classList.contains('hidden');
+
+                document.querySelectorAll('[data-message-detail-mobile]').forEach(d => {
+                    d.classList.add('hidden');
+                });
+
+                if (!wasOpen) {
+                    mobileTarget.classList.remove('hidden');
+
+                    requestAnimationFrame(() => {
+                        item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                }
+            }
         });
+    });
+}
+
+function initDeleteConfirm() {
+    document.querySelectorAll('[data-confirm-delete]').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            if (form.dataset.confirmed) return;
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Supprimer ce message ?',
+                text: 'Cette action est définitive.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Supprimer',
+                cancelButtonText: 'Annuler',
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#94a3b8',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.dataset.confirmed = 'true';
+                    form.submit();
+                }
+            });
+        });
+    });
+}
+
+function initAdminMoreMenu() {
+    const btn = document.getElementById('admin-more-btn');
+    const panel = document.getElementById('admin-more-panel');
+    if (!btn || !panel) return;
+
+    let open = false;
+
+    const positionPanel = () => {
+        const rect = btn.getBoundingClientRect();
+        panel.style.top = `${rect.bottom + 8}px`;
+        panel.style.left = `${Math.max(8, rect.right - 192)}px`;
+    };
+
+    const togglePanel = (show) => {
+        open = show;
+        if (show) positionPanel();
+        panel.classList.toggle('opacity-0', !show);
+        panel.classList.toggle('-translate-y-2', !show);
+        panel.classList.toggle('pointer-events-none', !show);
+        btn.setAttribute('aria-expanded', show);
+    };
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePanel(!open);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (open && !panel.contains(e.target) && e.target !== btn) {
+            togglePanel(false);
+        }
+    });
+
+    window.addEventListener('scroll', () => {
+        if (open) togglePanel(false);
     });
 }
 
@@ -190,6 +273,8 @@ document.addEventListener('turbo:load', initNavScript);
 document.addEventListener('turbo:load', initScrollAnimations);
 document.addEventListener('turbo:load', initFlashToasts);
 document.addEventListener('turbo:load', initAdminMessagesPanel);
+document.addEventListener('turbo:load', initDeleteConfirm);
+document.addEventListener('turbo:load', initAdminMoreMenu);
 document.addEventListener('turbo:before-cache', () => {
     document.querySelectorAll('[data-flash-message]').forEach(el => el.remove());
 });

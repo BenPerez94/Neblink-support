@@ -10,6 +10,12 @@
     --font-sans: "Inter", sans-serif;
 }
 
+@media (max-width: 767px) {
+    .mobile-hidden {
+        display: none !important;
+    }
+}
+
 .clip-x {
     overflow-x: clip;
 }

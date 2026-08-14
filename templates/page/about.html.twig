@@ -6,7 +6,7 @@
 
 {% block body %}
 
-    <section class="px-4 pt-16 pb-8  text-center">
+    <section class="px-4 pt-16 pb-2 text-center">
         <div class="max-w-xl mx-auto">
             <p data-animate="down" class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">À propos</p>
             <h1 data-animate="up" class="font-heading font-medium text-2xl md:text-3xl text-slate-800 mb-3 leading-snug">Derrière Neblink, il y a une seule personne</h1>
@@ -14,8 +14,8 @@
         </div>
 
         <div class="flex justify-center py-8">
-            <div data-animate class="w-24 h-24 rounded-full bg-linear-to-br from-sage-dark to-sage-light flex items-center justify-center">
-                <i data-lucide="user" class="w-9 h-9 text-white"></i>
+            <div data-animate class="w-48 h-48 rounded-full overflow-hidden ring-2 ring-white shadow-lg shadow-slate-900/10">
+                <img src="{{ asset('images/profile.jpg') }}" alt="Photo de profil" class="w-full h-full object-cover">
             </div>
         </div>
     </section>
