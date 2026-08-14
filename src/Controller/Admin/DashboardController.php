@@ -2,7 +2,11 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Client;
 use App\Entity\Contact;
+use App\Entity\Document;
+use App\Entity\Intervention;
+use App\Entity\Project;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +22,7 @@ class DashboardController extends AbstractController
     {
         $repo = $em->getRepository(Contact::class);
 
-        $debutMois = new \DateTimeImmutable('first day of this month 00:00:00');
+        $debutMois = new \DateTimeImmutable('first day of this month 00:00:00', new \DateTimeZone('Europe/Paris'));
 
         $traitesCeMois = $em->createQueryBuilder()
             ->select('COUNT(c.id)')
@@ -30,12 +34,49 @@ class DashboardController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
 
+        $totalClients = $em->getRepository(Client::class)->count([]);
+
+        $projetsEnCours = $em->getRepository(Project::class)->count(['statut' => 'en_cours']);
+
+        $interventionsCeMois = $em->createQueryBuilder()
+            ->select('COUNT(i.id)')
+            ->from(Intervention::class, 'i')
+            ->where('i.date >= :debut')
+            ->setParameter('debut', $debutMois)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $montantInterventionsCeMois = $em->createQueryBuilder()
+            ->select('COALESCE(SUM(i.montant), 0)')
+            ->from(Intervention::class, 'i')
+            ->where('i.date >= :debut')
+            ->setParameter('debut', $debutMois)
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        $montantFacturesCeMois = $em->createQueryBuilder()
+            ->select('COALESCE(SUM(d.montant), 0)')
+            ->from(Document::class, 'd')
+            ->where('d.type = :type')
+            ->andWhere('d.statutPaiement = :statut')
+            ->andWhere('d.createdAt >= :debut')
+            ->setParameter('type', 'facture')
+            ->setParameter('statut', 'payee')
+            ->setParameter('debut', $debutMois)
+            ->getQuery()
+            ->getSingleScalarResult();
+
         return $this->render('admin/dashboard.html.twig', [
             'nouveauxMessages' => $repo->count(['statut' => 'nouveau']),
             'enCoursMessages' => $repo->count(['statut' => 'en_cours']),
             'traitesCeMois' => $traitesCeMois,
             'derniersMessages' => $repo->findBy([], ['createdAt' => 'DESC'], 5),
-            'nouveauxMessagesCount' => $repo->count(['statut' => 'nouveau']),
+            'totalClients' => $totalClients,
+            'projetsEnCours' => $projetsEnCours,
+            'interventionsCeMois' => $interventionsCeMois,
+            'montantInterventionsCeMois' => $montantInterventionsCeMois,
+            'montantFacturesCeMois' => $montantFacturesCeMois,
+            'montantTotalCeMois' => $montantInterventionsCeMois + $montantFacturesCeMois,
         ]);
     }
 }

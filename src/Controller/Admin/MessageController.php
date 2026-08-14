@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Contact;
+use App\Entity\Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,9 +20,16 @@ class MessageController extends AbstractController
     {
         $contacts = $em->getRepository(Contact::class)->findBy([], ['createdAt' => 'DESC']);
 
+        $clients = $em->getRepository(Client::class)->findAll();
+        $clientIdByEmail = [];
+        foreach ($clients as $client) {
+            $clientIdByEmail[$client->getEmail()] = $client->getId();
+        }
+
         return $this->render('admin/messages/index.html.twig', [
             'contacts' => $contacts,
             'nouveauxMessagesCount' => $em->getRepository(Contact::class)->count(['statut' => 'nouveau']),
+            'clientIdByEmail' => $clientIdByEmail,
         ]);
     }
 

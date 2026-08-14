@@ -8,27 +8,32 @@
     <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-6">Nouveau client</h1>
 
     <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg">
-        <form method="post">
+        <form method="post" action="{{ path('admin_client_new') }}">
             <div class="mb-4">
                 <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Nom</label>
-                <input type="text" name="nom" required
+                <input type="text" name="nom" required value="{{ prefill.nom ?? '' }}"
                     class="w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition">
             </div>
 
             <div class="mb-4">
                 <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Email</label>
-                <input type="email" name="email" required
+                <input type="email" name="email" required value="{{ prefill.email ?? '' }}"
                     class="w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition">
             </div>
 
-            <div class="mb-6">
+            <div class="mb-5">
                 <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Téléphone (optionnel)</label>
-                <input type="tel" name="telephone"
+                <input type="tel" name="telephone" value="{{ prefill.telephone ?? '' }}"
                     class="w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition">
             </div>
+
+            <label class="flex items-center gap-2 mb-6 text-sm text-slate-600">
+                <input type="checkbox" name="send_invite" value="1" checked class="rounded border-slate-300 text-sage-dark focus:ring-sage-dark">
+                Envoyer le lien de création de mot de passe maintenant
+            </label>
 
             <button type="submit" class="w-full bg-sage-dark text-white font-heading font-medium text-sm rounded-xl py-3.5 cursor-pointer hover:opacity-90 transition">
-                Créer le client et envoyer le lien
+                Créer le client
             </button>
         </form>
     </div>

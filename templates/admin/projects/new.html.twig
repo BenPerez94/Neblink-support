@@ -1,0 +1,35 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Nouveau projet — Admin Neblink{% endblock %}
+
+{% block admin_content %}
+
+    <a href="{{ path('admin_client_show', {id: client.id}) }}" class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-sage-dark mb-4">
+        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+        Retour à {{ client.nom }}
+    </a>
+
+    <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Nouveau projet</p>
+    <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-6">Pour {{ client.nom }}</h1>
+
+    <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg">
+        <form method="post">
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Titre du projet</label>
+                <input type="text" name="titre" required placeholder="Ex : Site vitrine"
+                    class="w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Description (optionnel)</label>
+                <textarea name="description" rows="4"
+                    class="w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition resize-none"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-sage-dark text-white font-heading font-medium text-sm rounded-xl py-3.5 cursor-pointer hover:opacity-90 transition">
+                Créer le projet
+            </button>
+        </form>
+    </div>
+
+{% endblock %}

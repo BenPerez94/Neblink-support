@@ -4,7 +4,7 @@
 
 {% import _self as macros %}
 
-{% macro messageDetail(contact) %}
+{% macro messageDetail(contact, clientIdByEmail) %}
     <div class="flex items-start justify-between gap-3 mb-3">
         <div>
             <p class="font-heading font-semibold text-base text-slate-800">{{ contact.nom }}</p>
@@ -29,7 +29,7 @@
             {% if contact.statut == 'nouveau' %}
                 <form method="post" action="{{ path('admin_message_update_statut', {id: contact.id}) }}">
                     <input type="hidden" name="statut" value="vu">
-                    <button type="submit" title="Marquer comme vu" class="w-7 h-6 flex items-center justify-center  text-blue-500/80 rounded-xl cursor-pointer hover:bg-blue-600 transition">
+                    <button type="submit" title="Marquer comme vu" class="w-7 h-6 flex items-center justify-center  text-blue-500/80 rounded-xl cursor-pointer hover:text-blue-500/50 transition">
                         <i data-lucide="eye" class="w-5 h-5"></i>
                     </button>
                 </form>
@@ -48,17 +48,32 @@
         {{ contact.message }}
     </p>
 
-    <form method="post" action="{{ path('admin_message_update_statut', {id: contact.id}) }}" class="flex items-center gap-2">
-        <select name="statut" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 w-32 focus:outline-none focus:border-sage-dark">
-            <option value="nouveau" {{ contact.statut == 'nouveau' ? 'selected' }}>Nouveau</option>
-            <option value="vu" {{ contact.statut == 'vu' ? 'selected' }}>Vu</option>
-            <option value="en_cours" {{ contact.statut == 'en_cours' ? 'selected' }}>En cours</option>
-            <option value="traite" {{ contact.statut == 'traite' ? 'selected' }}>Traité</option>
-        </select>
-        <button type="submit" title="Mettre à jour" class="w-7 h-6 flex items-center justify-center bg-sage-dark text-white rounded-xl cursor-pointer hover:opacity-90 transition">
-            <i data-lucide="check" class="w-4 h-4"></i>
-        </button>
-    </form>
+    <div class="flex items-center justify-between gap-2">
+        <form method="post" action="{{ path('admin_message_update_statut', {id: contact.id}) }}" class="flex items-center gap-2 shrink-0">
+            <select name="statut" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 w-32 focus:outline-none focus:border-sage-dark">
+                <option value="nouveau" {{ contact.statut == 'nouveau' ? 'selected' }}>Nouveau</option>
+                <option value="vu" {{ contact.statut == 'vu' ? 'selected' }}>Vu</option>
+                <option value="en_cours" {{ contact.statut == 'en_cours' ? 'selected' }}>En cours</option>
+                <option value="traite" {{ contact.statut == 'traite' ? 'selected' }}>Traité</option>
+            </select>
+            <button type="submit" title="Mettre à jour" class="w-7 h-6 flex items-center justify-center bg-sage-dark text-white rounded-xl cursor-pointer hover:opacity-90 transition">
+                <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+        </form>
+        {% if contact.email in clientIdByEmail|keys %}
+            <a href="{{ path('admin_client_show', {id: clientIdByEmail[contact.email]}) }}" class="inline-flex items-center gap-1.5 text-xs bg-sage-dark/10 text-sage-dark rounded-lg px-3 py-2 font-medium hover:bg-sage-dark/20 transition">
+                <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                Voir la fiche client
+            </a>
+        {% else %}
+            <a href="{{ path('admin_client_from_contact', {id: contact.id}) }}" class="inline-flex items-center gap-1.5 text-xs bg-sage-dark text-white rounded-lg px-3 py-2 font-medium hover:bg-sage-dark/80 transition">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                Créer une fiche client
+            </a>
+        {% endif %}
+
+        
+    </div>
 {% endmacro %}
 
 {% block admin_content %}
@@ -118,7 +133,7 @@
 
                         {# Détail accordéon, mobile uniquement #}
                         <div id="msg-mobile-{{ contact.id }}" data-message-detail-mobile class="md:hidden hidden bg-[#faf9f6] p-4 border-b border-slate-100">
-                            {{ macros.messageDetail(contact) }}
+                            {{ macros.messageDetail(contact, clientIdByEmail) }}
                         </div>
                     </div>
                 {% endfor %}
@@ -128,7 +143,7 @@
             <div id="messages-detail-col" class="hidden md:block p-5 md:p-6">
                 {% for contact in contacts %}
                     <div id="msg-{{ contact.id }}" data-message-detail class="{{ (openId and contact.id == openId) or (not openId and loop.first) ? '' : 'hidden' }}">
-                        {{ macros.messageDetail(contact) }}
+                        {{ macros.messageDetail(contact, clientIdByEmail) }}
                     </div>
                 {% endfor %}
             </div>

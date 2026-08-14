@@ -4,8 +4,11 @@ namespace App\Entity;
 
 use App\Repository\DocumentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: DocumentRepository::class)]
+#[Vich\Uploadable]
 class Document
 {
     #[ORM\Id]
@@ -22,11 +25,20 @@ class Document
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $statutPaiement = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(nullable: true)]
+    private ?float $montant = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $fichier = null;
+
+    #[Vich\UploadableField(mapping: 'project_documents', fileNameProperty: 'fichier')]
+    private ?File $fichierFile = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'documents')]
     #[ORM\JoinColumn(nullable: false)]
@@ -74,16 +86,41 @@ class Document
         $this->statutPaiement = $statutPaiement;
         return $this;
     }
+    
+    public function getMontant(): ?float
+    {
+        return $this->montant;
+    }
+
+    public function setMontant(?float $montant): static
+    {
+        $this->montant = $montant;
+        return $this;
+    }
 
     public function getFichier(): ?string
     {
         return $this->fichier;
     }
 
-    public function setFichier(string $fichier): static
+    public function setFichier(?string $fichier): static
     {
         $this->fichier = $fichier;
         return $this;
+    }
+
+    public function setFichierFile(?File $fichierFile = null): void
+    {
+        $this->fichierFile = $fichierFile;
+
+        if ($fichierFile) {
+            $this->updatedAt = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        }
+    }
+
+    public function getFichierFile(): ?File
+    {
+        return $this->fichierFile;
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable

@@ -1,0 +1,99 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}{{ client.nom }} — Admin Neblink{% endblock %}
+
+{% block admin_content %}
+
+    <a href="{{ path('admin_clients') }}" class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-sage-dark mb-4">
+        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+        Retour aux clients
+    </a>
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Client</p>
+            <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">{{ client.nom }}</h1>
+            <p class="text-xs text-slate-400 mt-1">
+                {{ client.email }}{% if client.telephone %} · {{ client.telephone }}{% endif %}
+            </p>
+        </div>
+        <a href="{{ path('admin_project_new', {clientId: client.id}) }}" class="flex items-center gap-1.5 bg-sage-dark text-white text-sm font-medium rounded-xl px-4 py-2.5 shrink-0">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Nouveau projet
+        </a>
+    </div>
+
+    {# ---------- Projets web ---------- #}
+    <p class="font-heading font-medium text-sm text-slate-800 mb-3">Projets web</p>
+
+    {% if client.projects is empty %}
+        <p class="text-sm text-slate-400 mb-8">Aucun projet.</p>
+    {% else %}
+        <div class="flex flex-col gap-3 mb-8">
+            {% for project in client.projects %}
+                <a href="{{ path('admin_project_show', {id: project.id}) }}" class="bg-white rounded-2xl p-5 flex items-center justify-between gap-3 hover:shadow-md transition">
+                    <div>
+                        <p class="font-heading font-medium text-sm text-slate-800">{{ project.titre }}</p>
+                        <p class="text-xs text-slate-400 mt-0.5">{{ project.steps|length }} étape{{ project.steps|length > 1 ? 's' : '' }} · {{ project.documents|length }} document{{ project.documents|length > 1 ? 's' : '' }}</p>
+                    </div>
+                    <span class="text-[11px] font-medium px-2.5 py-1 rounded-full shrink-0
+                        {{ project.statut == 'en_attente' ? 'bg-amber-100 text-amber-700' : '' }}
+                        {{ project.statut == 'en_cours' ? 'bg-blue-100 text-blue-700' : '' }}
+                        {{ project.statut == 'termine' ? 'bg-green-100 text-green-700' : '' }}">
+                        {{ project.statut|replace({'_': ' '})|capitalize }}
+                    </span>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {# ---------- Interventions dépannage ---------- #}
+    <p class="font-heading font-medium text-sm text-slate-800 mb-3">Interventions dépannage</p>
+
+    <div class="flex flex-col gap-3 mb-4">
+        {% for intervention in client.interventions %}
+            <div class="bg-white rounded-2xl p-5 flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <p class="text-xs text-slate-400">{{ intervention.date|date('d/m/Y') }}</p>
+                        {% if intervention.montant %}
+                            <span class="text-xs font-medium text-sage-dark">{{ intervention.montant|number_format(2, ',', ' ') }} €</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{{ intervention.description }}</p>
+                    {% if intervention.facture %}
+                        <a href="{{ asset('uploads/interventions/' ~ intervention.facture) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-sage-dark mt-2 hover:underline">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                            Voir la facture
+                        </a>
+                    {% endif %}
+                </div>
+                <form method="post" action="{{ path('admin_intervention_delete', {id: intervention.id}) }}" data-confirm-delete>
+                    <button type="submit" class="text-slate-300 hover:text-red-400 cursor-pointer shrink-0">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+        {% else %}
+            <p class="text-sm text-slate-400">Aucune intervention.</p>
+        {% endfor %}
+    </div>
+
+    <div class="bg-white rounded-2xl p-6">
+        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Ajouter une intervention</p>
+        <form method="post" action="{{ path('admin_intervention_add', {clientId: client.id}) }}" enctype="multipart/form-data" class="flex flex-col gap-3">
+            <textarea name="description" rows="3" placeholder="Description de l'intervention" required
+                class="text-sm bg-[#faf9f6] border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:border-sage-dark resize-none"></textarea>
+            <div class="flex flex-col items-center md:flex-row gap-2">
+                <input type="number" step="0.01" name="montant" placeholder="Montant (€)"
+                    class="md:w-40 text-sm bg-[#faf9f6] border border-slate-200 rounded-lg px-3 py-2.5 focus:outline-none focus:border-sage-dark">
+                <input type="file" name="facture" accept="application/pdf"
+                    class="flex-1 text-xs text-slate-500 file:mr-2 file:text-xs file:bg-sage-dark/10 file:text-sage-dark file:rounded-lg file:border-0 file:px-2 file:py-1.5 file:cursor-pointer">
+            </div>
+            <button type="submit" class="bg-sage-dark text-white text-sm rounded-lg py-2.5 cursor-pointer hover:opacity-90 transition">
+                Ajouter l'intervention
+            </button>
+        </form>
+    </div>
+
+{% endblock %}

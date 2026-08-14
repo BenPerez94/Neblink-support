@@ -24,8 +24,9 @@
                 <a href="{{ path('admin_messages') }}" class="shrink-0 flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm {{ app.request.attributes.get('_route') starts with 'admin_message' ? 'bg-white/15 text-white font-medium' : 'text-white/65 hover:bg-white/10' }}">
                     <i data-lucide="mail" class="w-4 h-4"></i>
                     Messages
-                    {% if nouveauxMessagesCount is defined and nouveauxMessagesCount > 0 %}
-                        <span class="ml-auto bg-red-400 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ nouveauxMessagesCount }}</span>
+                    {% set nbNouveaux = nouveaux_messages_count() %}
+                    {% if nbNouveaux > 0 %}
+                        <span class="ml-auto bg-red-400 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ nbNouveaux }}</span>
                     {% endif %}
                 </a>
                 <a href="{{ path('admin_clients') }}" class="shrink-0 flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm {{ app.request.attributes.get('_route') starts with 'admin_client' ? 'bg-white/15 text-white font-medium' : 'text-white/65 hover:bg-white/10' }}">
@@ -40,10 +41,12 @@
                     <i data-lucide="external-link" class="w-4 h-4"></i>
                     Retour au site
                 </a>
-                <a href="{{ path('app_logout') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-white/50 hover:bg-white/10">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    Déconnexion
-                </a>
+                <form method="post" action="{{ path('app_logout') }}">
+                    <button type="submit" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-white/50 hover:bg-white/10 cursor-pointer">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        Déconnexion
+                    </button>
+                </form>
             </div>
 
             {# Menu "3 points", mobile uniquement #}
@@ -57,10 +60,12 @@
                         <i data-lucide="external-link" class="w-4 h-4"></i>
                         Retour au site
                     </a>
-                    <a href="{{ path('app_logout') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        Déconnexion
-                    </a>
+                    <form method="post" action="{{ path('app_logout') }}">
+                        <button type="submit" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-white/50 hover:bg-white/10 cursor-pointer">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            Déconnexion
+                        </button>
+                    </form>
                 </div>
             </div>
 

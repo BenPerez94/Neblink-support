@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, ExternalLink, Trash2, MoreVertical, Users  } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronLeft, X, UserPlus, UserCheck, FolderKanban, Euro  } from 'lucide';
 
 document.addEventListener('turbo:load', () => {
     createIcons({
@@ -45,7 +45,14 @@ document.addEventListener('turbo:load', () => {
             ExternalLink,
             Trash2,
             MoreVertical,
-            Users
+            Users,
+            FileText,
+            ChevronLeft,
+            X,
+            UserPlus,
+            UserCheck,
+            FolderKanban,
+            Euro,
         }
     });
 });

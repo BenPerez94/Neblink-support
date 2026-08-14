@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Client;
+use App\Entity\Contact;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,9 +36,14 @@ class ClientController extends AbstractController
             $client->setEmail($request->request->get('email'));
             $client->setTelephone($request->request->get('telephone') ?: null);
 
-            $this->generateAndSendSetupLink($client, $em, $mailer);
-
-            $this->addFlash('success', 'Client créé, un email de création de mot de passe lui a été envoyé.');
+            if ($request->request->get('send_invite')) {
+                $this->generateAndSendSetupLink($client, $em, $mailer);
+                $this->addFlash('success', 'Client créé, un email de création de mot de passe lui a été envoyé.');
+            } else {
+                $em->persist($client);
+                $em->flush();
+                $this->addFlash('success', 'Client créé.');
+            }
 
             return $this->redirectToRoute('admin_clients');
         }
@@ -53,6 +59,26 @@ class ClientController extends AbstractController
         $this->addFlash('success', 'Nouveau lien envoyé.');
 
         return $this->redirectToRoute('admin_clients');
+    }
+
+    #[Route('/{id}', name: 'admin_client_show')]
+    public function show(Client $client): Response
+    {
+        return $this->render('admin/clients/show.html.twig', [
+            'client' => $client,
+        ]);
+    }
+
+    #[Route('/depuis-contact/{id}', name: 'admin_client_from_contact')]
+    public function fromContact(Contact $contact): Response
+    {
+        return $this->render('admin/clients/new.html.twig', [
+            'prefill' => [
+                'nom' => $contact->getNom(),
+                'email' => $contact->getEmail(),
+                'telephone' => $contact->getTelephone(),
+            ],
+        ]);
     }
 
     private function generateAndSendSetupLink(Client $client, EntityManagerInterface $em, MailerInterface $mailer): void

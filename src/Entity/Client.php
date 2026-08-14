@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ClientRepository;
+use App\Entity\Intervention;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,10 +42,15 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Project::class, orphanRemoval: true)]
     private Collection $projects;
 
+    #[ORM\OneToMany(mappedBy: 'client', targetEntity: Intervention::class, orphanRemoval: true)]
+    #[ORM\OrderBy(['date' => 'DESC'])]
+    private Collection $interventions;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $this->projects = new ArrayCollection();
+        $this->interventions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -121,6 +127,14 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     // --- UserInterface / PasswordAuthenticatedUserInterface ---
+
+    /**
+    * @return Collection<int, Intervention>
+    */
+    public function getInterventions(): Collection
+    {
+        return $this->interventions;
+    }
 
     public function getUserIdentifier(): string
     {
