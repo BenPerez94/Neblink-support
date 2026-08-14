@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lien expiré — Admin Neblink{% endblock %}
+
+{% block nav_light %}true{% endblock %}
+
+{% block body %}
+
+    <section class="px-4 py-24 md:py-32 text-center">
+        <div class="max-w-md mx-auto">
+            <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-3">Lien expiré</p>
+            <h1 class="font-heading font-semibold text-2xl text-slate-800 mb-3">Ce lien n'est plus valable</h1>
+            <p class="text-sm text-slate-500 leading-relaxed mb-8">
+                Le lien de réinitialisation a expiré ou a déjà été utilisé. Redemandez-en un nouveau.
+            </p>
+            <a href="{{ path('app_forgot_password') }}" class="inline-flex bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-6 py-3.5">
+                Redemander un lien
+            </a>
+        </div>
+    </section>
+
+{% endblock %}

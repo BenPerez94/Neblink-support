@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Client;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,5 +80,76 @@ class EspaceClientController extends AbstractController
             'client' => $client,
             'projects' => $client->getProjects(),
         ]);
+    }
+
+
+    #[Route('/espace-client/mot-de-passe-oublie', name: 'espace_client_forgot_password')]
+    public function forgotPassword(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
+    {
+        if ($request->isMethod('POST')) {
+            $email = $request->request->get('email');
+            $client = $em->getRepository(Client::class)->findOneBy(['email' => $email]);
+
+            if ($client) {
+                $token = bin2hex(random_bytes(32));
+                $client->setPasswordResetToken($token);
+                $client->setPasswordResetTokenExpiresAt(
+                    new \DateTimeImmutable('+2 hours', new \DateTimeZone('Europe/Paris'))
+                );
+                $em->flush();
+
+                $emailMessage = (new TemplatedEmail())
+                    ->from('contact@neblink.fr')
+                    ->to($client->getEmail())
+                    ->subject('Réinitialisation de votre mot de passe — Neblink')
+                    ->htmlTemplate('emails/client_password_reset.html.twig')
+                    ->context(['client' => $client, 'token' => $token]);
+
+                $mailer->send($emailMessage);
+            }
+
+            // Message identique que le client existe ou non, pour ne pas révéler
+            // quels emails sont enregistrés
+            $this->addFlash('success', 'Si un compte existe avec cet email, un lien de réinitialisation vient de vous être envoyé.');
+
+            return $this->redirectToRoute('espace_client_login');
+        }
+
+        return $this->render('espace_client/forgot_password.html.twig');
+    }
+
+    #[Route('/espace-client/reinitialiser-mot-de-passe/{token}', name: 'espace_client_reset_password')]
+    public function resetPassword(
+        string $token,
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $client = $em->getRepository(Client::class)->findOneBy(['passwordResetToken' => $token]);
+
+        if (!$client || $client->getPasswordResetTokenExpiresAt() < new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'))) {
+            return $this->render('espace_client/lien_expire.html.twig');
+        }
+
+        if ($request->isMethod('POST')) {
+            $password = $request->request->get('password');
+            $confirmation = $request->request->get('password_confirmation');
+
+            if ($password !== $confirmation || strlen($password) < 8) {
+                $this->addFlash('error', 'Les mots de passe ne correspondent pas ou sont trop courts (8 caractères minimum).');
+                return $this->render('espace_client/reset_password.html.twig', ['token' => $token]);
+            }
+
+            $client->setPassword($passwordHasher->hashPassword($client, $password));
+            $client->setPasswordResetToken(null);
+            $client->setPasswordResetTokenExpiresAt(null);
+            $em->flush();
+
+            $this->addFlash('success', 'Votre mot de passe a été mis à jour, vous pouvez vous connecter.');
+
+            return $this->redirectToRoute('espace_client_login');
+        }
+
+        return $this->render('espace_client/reset_password.html.twig', ['token' => $token]);
     }
 }
