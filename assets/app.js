@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, ExternalLink, Trash2, MoreVertical  } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, ExternalLink, Trash2, MoreVertical, Users  } from 'lucide';
 
 document.addEventListener('turbo:load', () => {
     createIcons({
@@ -44,7 +44,8 @@ document.addEventListener('turbo:load', () => {
             Eye,
             ExternalLink,
             Trash2,
-            MoreVertical
+            MoreVertical,
+            Users
         }
     });
 });
@@ -195,9 +196,11 @@ function initAdminMessagesPanel() {
                 if (!wasOpen) {
                     mobileTarget.classList.remove('hidden');
 
-                    requestAnimationFrame(() => {
-                        item.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    });
+                    if (window.innerWidth < 768) {
+                        requestAnimationFrame(() => {
+                            item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        });
+                    }
                 }
             }
         });

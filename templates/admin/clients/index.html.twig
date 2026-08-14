@@ -1,0 +1,51 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Clients — Admin Neblink{% endblock %}
+
+{% block admin_content %}
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Admin</p>
+            <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">Clients</h1>
+        </div>
+        <a href="{{ path('admin_client_new') }}" class="flex items-center gap-1.5 bg-sage-dark text-white text-sm font-medium rounded-xl px-4 py-2.5">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Nouveau client
+        </a>
+    </div>
+
+    {% if clients is empty %}
+        <p class="text-sm text-slate-400 text-center py-16">Aucun client pour le moment.</p>
+    {% else %}
+        <div class="flex flex-col gap-3">
+            {% for client in clients %}
+                <div class="bg-white rounded-2xl p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <p class="font-heading font-medium text-sm text-slate-800">{{ client.nom }}</p>
+                            {% if client.password is null %}
+                                <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                                    Compte non activé
+                                </span>
+                            {% endif %}
+                        </div>
+                        <p class="text-xs text-slate-400">
+                            {{ client.email }}{% if client.telephone %} · {{ client.telephone }}{% endif %}
+                            · {{ client.projects|length }} projet{{ client.projects|length > 1 ? 's' : '' }}
+                        </p>
+                    </div>
+
+                    {% if client.password is null %}
+                        <form method="post" action="{{ path('admin_client_resend_link', {id: client.id}) }}">
+                            <button type="submit" class="text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-600 hover:border-sage-dark transition cursor-pointer">
+                                Renvoyer le lien
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endblock %}
