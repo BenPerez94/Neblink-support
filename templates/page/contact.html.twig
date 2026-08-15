@@ -18,6 +18,10 @@
         <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-8 items-start">
                 <div data-animate="left"style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-3xl p-6 md:p-10 shadow-xl shadow-slate-900/5">
                     {{ form_start(contactForm) }}
+                        <div style="position: absolute; left: -9999px; top: -9999px;" aria-hidden="true">
+                            {{ form_widget(contactForm.website) }}
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                             <div>
                                 {{ form_label(contactForm.nom, null, {'label_attr': {'class': 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2'}}) }}

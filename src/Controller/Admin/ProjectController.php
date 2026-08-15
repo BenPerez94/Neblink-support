@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\MailerInterface;
 
 
 #[Route('/admin/projets')]
@@ -104,7 +106,7 @@ class ProjectController extends AbstractController
     }
 
     #[Route('/{id}/documents/ajouter', name: 'admin_project_document_add', methods: ['POST'])]
-    public function addDocument(Project $project, Request $request, EntityManagerInterface $em): Response
+    public function addDocument(Project $project, Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
         $file = $request->files->get('fichier');
         $nom = $request->request->get('nom');
@@ -129,6 +131,12 @@ class ProjectController extends AbstractController
             $em->persist($document);
             $em->flush();
 
+            $this->notifyClient(
+                $project,
+                'Un nouveau document (' . $document->getType() . ') vient d\'être ajouté à votre projet : "' . $document->getNom() . '".',
+                $mailer
+            );
+
             $this->addFlash('success', 'Document ajouté.');
         }
 
@@ -152,5 +160,23 @@ class ProjectController extends AbstractController
         $em->flush();
 
         return $this->redirectToRoute('admin_project_show', ['id' => $document->getProject()->getId()]);
+    }
+
+    private function notifyClient(Project $project, string $message, MailerInterface $mailer): void
+    {
+        $client = $project->getClient();
+
+        $email = (new TemplatedEmail())
+            ->from('contact@neblink.fr')
+            ->to($client->getEmail())
+            ->subject('Nouveauté sur votre projet — Neblink')
+            ->htmlTemplate('emails/client_project_notification.html.twig')
+            ->context([
+                'client' => $client,
+                'project' => $project,
+                'message' => $message,
+            ]);
+
+        $mailer->send($email);
     }
 }

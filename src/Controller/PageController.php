@@ -43,6 +43,9 @@ final class PageController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('website')->getData()) {
+                return $this->redirectToRoute('app_contact');
+            }
             $em->persist($contact);
             $em->flush();
 

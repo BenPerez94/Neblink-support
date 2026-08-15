@@ -46,6 +46,15 @@ class ContactType extends AbstractType
                 'label' => 'Message',
                 'attr' => ['placeholder' => 'Décrivez votre besoin', 'rows' => 6, 'class' => self::BASE_CLASS . ' border-l-sage-light resize-none'],
             ])
+            ->add('website', TextType::class, [
+                'label' => false,
+                'required' => false,
+                'mapped' => false,
+                'attr' => [
+                    'autocomplete' => 'off',
+                    'tabindex' => '-1',
+                ],
+            ])
         ;
     }
 
