@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Assistance à distance — Neblink{% endblock %}
+{% block meta_description %}Téléchargez un logiciel d'assistance à distance pour une intervention rapide, où que vous soyez en France.{% endblock %}
+
+{% block nav_light %}true{% endblock %}
+
+{% block body %}
+
+    <section class="px-4 pt-16 pb-8 text-center">
+        <div class="max-w-xl mx-auto">
+            <p data-animate="down" class="text-s font-medium text-sage-dark uppercase tracking-wide mb-6">Assistance à distance</p>
+            <h1 data-animate="up" class="font-heading font-medium text-2xl md:text-3xl text-slate-800 mb-3 leading-snug">Téléchargez un logiciel pour démarrer</h1>
+            <p data-animate="up" class="text-sm text-slate-500 leading-relaxed">Choisissez l'un des deux logiciels ci-dessous, lancez-le, puis communiquez-moi l'identifiant affiché à l'écran. Aucune installation n'est nécessaire.</p>
+        </div>
+    </section>
+
+    <section class="px-4 pb-16 md:pb-8 clip-x">
+        <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <div data-animate="left" class="bg-white border border-slate-200 rounded-2xl p-6 text-center">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-sage-dark/10 flex items-center justify-center mb-4">
+                    <i data-lucide="monitor" class="w-6 h-6 text-sage-dark"></i>
+                </div>
+                <p class="font-heading font-medium text-base text-slate-800 mb-1.5">TeamViewer QuickSupport</p>
+                <p class="text-xs text-slate-500 leading-relaxed mb-5">Le plus utilisé, aucune installation, compatible Windows, Mac, Android, iOS.</p>
+                <a href="https://www.teamviewer.com/fr/download/portal/windows/" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-5 py-2.5">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Télécharger
+                </a>
+            </div>
+
+            <div data-animate="right" class="bg-white border border-slate-200 rounded-2xl p-6 text-center">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-sage-dark/10 flex items-center justify-center mb-4">
+                    <i data-lucide="monitor" class="w-6 h-6 text-sage-dark"></i>
+                </div>
+                <p class="font-heading font-medium text-base text-slate-800 mb-1.5">AnyDesk</p>
+                <p class="text-xs text-slate-500 leading-relaxed mb-5">Léger et rapide, une bonne alternative si besoin. Windows, Mac, Linux, mobile.</p>
+                <a href="https://anydesk.com/fr/downloads/windows" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-5 py-2.5">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Télécharger
+                </a>
+            </div>
+
+        </div>
+
+        <div data-animate class="max-w-3xl mx-auto mt-6 bg-[#faf9f6] border border-slate-200 rounded-2xl p-5 flex gap-3 items-start">
+            <i data-lucide="shield-check" class="w-5 h-5 text-sage-dark shrink-0 mt-0.5"></i>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Ces logiciels ne permettent l'accès à votre ordinateur qu'avec votre autorisation explicite, session par session. Je ne me connecte jamais sans que vous m'ayez communiqué votre identifiant.
+            </p>
+        </div>
+    </section>
+
+    <section class="px-4 pb-16 md:pb-24 bg-[#faf9f6] pt-16 md:pt-16 clip-x">
+      <div class="max-w-2xl mx-auto">
+
+          <p data-animate="down" class="text-s font-medium text-sage-dark uppercase tracking-wide mb-3 text-center">Besoin d'aide</p>
+          <h2 data-animate="up" class="font-heading font-medium text-xl md:text-2xl text-slate-800 mb-10 text-center">Comment bien télécharger</h2>
+
+          <div data-animate class="flex flex-col gap-6">
+
+              <div class="flex gap-4">
+                  <div class="w-8 h-8 shrink-0 rounded-full bg-sage-dark text-white flex items-center justify-center font-heading font-medium text-sm">1</div>
+                  <div>
+                      <p class="text-sm font-medium text-slate-800 mb-1">Cliquez sur le bouton "Télécharger" ci-dessus</p>
+                      <p class="text-sm text-slate-500 leading-relaxed">Vous arrivez sur le site officiel du logiciel choisi.</p>
+                  </div>
+              </div>
+
+              <div class="flex gap-4">
+                  <div class="w-8 h-8 shrink-0 rounded-full bg-sage-dark text-white flex items-center justify-center font-heading font-medium text-sm">2</div>
+                  <div>
+                      <p class="text-sm font-medium text-slate-800 mb-1">Si plusieurs versions sont proposées (32 bits / 64 bits)</p>
+                      <p class="text-sm text-slate-500 leading-relaxed">Choisissez <strong>64 bits</strong> — c'est la version adaptée à la quasi-totalité des ordinateurs vendus depuis 2010. En cas de doute, testez-la en premier : si elle ne fonctionne pas, essayez la version 32 bits juste en dessous.</p>
+                  </div>
+              </div>
+
+              <div class="flex gap-4">
+                  <div class="w-8 h-8 shrink-0 rounded-full bg-sage-dark text-white flex items-center justify-center font-heading font-medium text-sm">3</div>
+                  <div>
+                      <p class="text-sm font-medium text-slate-800 mb-1">Ouvrez le fichier téléchargé</p>
+                      <p class="text-sm text-slate-500 leading-relaxed">Aucune installation n'est nécessaire, un simple double-clic suffit pour lancer le programme.</p>
+                  </div>
+              </div>
+
+              <div class="flex gap-4">
+                  <div class="w-8 h-8 shrink-0 rounded-full bg-sage-dark text-white flex items-center justify-center font-heading font-medium text-sm">4</div>
+                  <div>
+                      <p class="text-sm font-medium text-slate-800 mb-1">Communiquez-moi l'identifiant affiché</p>
+                      <p class="text-sm text-slate-500 leading-relaxed">Un code à l'écran apparaît (souvent appelé "ID" ou "identifiant"). Donnez-le-moi par téléphone, j'accède alors à votre ordinateur avec votre accord.</p>
+                  </div>
+              </div>
+
+          </div>
+
+      </div>
+  </section>
+
+{% endblock %}

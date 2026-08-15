@@ -45,20 +45,42 @@
                 "@context": "https://schema.org",
                 "@type": "LocalBusiness",
                 "name": "Neblink",
-                "description": "Dépannage informatique et développement web à Chaumont",
+                "description": "Dépannage informatique et développement web à Rimaucourt, Chaumont, Neufchâteau et alentours, avec intervention à distance possible partout en France",
                 "telephone": "+33744476907",
                 "address": {
                     "@type": "PostalAddress",
-                    "addressLocality": "Chaumont",
+                    "addressLocality": "Rimaucourt",
+                    "postalCode": "52700",
                     "addressRegion": "Grand Est",
                     "addressCountry": "FR"
                 },
-                "areaServed": "Chaumont et alentours",
+                "areaServed": [
+                    {
+                        "@type": "Place",
+                        "name": "Rimaucourt"
+                    },
+                    {
+                        "@type": "Place",
+                        "name": "Chaumont"
+                    },
+                    {
+                        "@type": "Place",
+                        "name": "Neufchâteau"
+                    },
+                    {
+                        "@type": "Country",
+                        "name": "France"
+                    }
+                ],
                 "openingHours": "Mo-Fri 08:00-20:00",
                 "url": "https://www.neblink.fr",
                 "image": "https://www.neblink.fr/images/og-image.jpg"
             }
         </script>
+
+        <!-- Cloudflare Web Analytics -->
+        <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c7b3aa8332324849bf4009267bfc6883"}'></script>
+        <!-- End Cloudflare Web Analytics -->
     </head>
     {% for message in app.flashes('success') %}
         <div data-flash-type="success" data-flash-message="{{ message }}" class="hidden"></div>
@@ -125,7 +147,7 @@
                 </div>
             </div>
             <div class="flex flex-col md:flex-row items-center md:justify-between gap-3 text-center md:text-left">
-                <p class="text-xs text-slate-400">© {{ "now"|date("Y") }} Neblink — Chaumont et alentours</p>
+                <p class="text-xs text-slate-400">© {{ "now"|date("Y") }} Neblink — Chaumont, Neufchâteau et alentours</p>
                 <div class="flex gap-4">
                     <a href="{{ path('app_home') }}" class="text-xs text-slate-500 hover:text-sage-dark">Dépannage</a>
                     <a href="{{ path('app_dev_web') }}" class="text-xs text-slate-500 hover:text-sage-dark">Développement web</a>

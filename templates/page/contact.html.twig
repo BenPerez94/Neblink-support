@@ -15,7 +15,7 @@
     </section>
 
     <section class="px-4 py-10 md:py-16">
-        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-8 items-start">
+        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-8 items-start clip-x">
                 <div data-animate="left"style="backdrop-filter: blur(10px);" class="bg-white/45 border border-slate-200 rounded-3xl p-6 md:p-10 shadow-xl shadow-slate-900/5">
                     {{ form_start(contactForm) }}
                         <div style="position: absolute; left: -9999px; top: -9999px;" aria-hidden="true">
@@ -72,7 +72,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-slate-800">Disponibilité</p>
-                        <p class="text-xs text-slate-500">Lun–Ven, 9h–20h</p>
+                        <p class="text-xs text-slate-500">Lun–Sam, 9h–20h</p>
                     </div>
                 </div>
 
@@ -82,13 +82,18 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-slate-800">Zone d'intervention</p>
-                        <p class="text-xs text-slate-500">Chaumont et 20km alentours</p>
+                        <p class="text-xs text-slate-500">Chaumont, Neufchâteau et alentours</p>
+                        <p class="text-xs text-sage-dark font-medium mt-0.5">+ dépannage à distance partout en France</p>
                     </div>
                 </div>
 
                 <div class="bg-linear-to-br from-sage-dark to-sage rounded-2xl p-4 shadow-lg shadow-slate-900/8">
                     <p class="text-sm font-medium text-white mb-1">Urgence ?</p>
-                    <p class="text-xs text-white/80">Appelez directement, c'est souvent plus rapide.</p>
+                    <p class="text-xs text-white/80 mb-3">Appelez directement, c'est souvent plus rapide.</p>
+                    <a href="{{ path('app_assistance_distance') }}" class="inline-flex items-center gap-1.5 text-xs text-white font-medium bg-white/15 rounded-lg px-3 py-2 hover:bg-white/25 transition">
+                        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+                        Assistance à distance
+                    </a>
                 </div>
 
                 <div class="pt-4 text-center">

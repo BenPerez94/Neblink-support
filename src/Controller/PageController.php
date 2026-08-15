@@ -79,4 +79,10 @@ final class PageController extends AbstractController
     {
         return $this->render('page/confidentialite.html.twig');
     }
+
+    #[Route('/assistance-a-distance', name: 'app_assistance_distance')]
+    public function assistanceDistance(): Response
+    {
+        return $this->render('page/assistance-distance.html.twig');
+    }
 }
