@@ -2,12 +2,17 @@
 
 {% block title %}Nouveau projet - Admin Neblink{% endblock %}
 
-{% block admin_content %}
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Clients', path: path('admin_clients')},
+        {label: client.nom, path: path('admin_client_show', {id: client.id})},
+        {label: 'Nouveau projet'}
+    ]) }}
+{% endblock %}
 
-    <a href="{{ path('admin_client_show', {id: client.id}) }}" class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-sage-dark mb-4">
-        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
-        Retour à {{ client.nom }}
-    </a>
+{% block admin_content %}
 
     <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Nouveau projet</p>
     <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-6">Pour {{ client.nom }}</h1>

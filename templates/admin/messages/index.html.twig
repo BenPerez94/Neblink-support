@@ -72,9 +72,17 @@
             </a>
         {% endif %}
 
-        
+
     </div>
 {% endmacro %}
+
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Messages'}
+    ]) }}
+{% endblock %}
 
 {% block admin_content %}
 

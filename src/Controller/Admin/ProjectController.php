@@ -6,6 +6,8 @@ use App\Entity\Client;
 use App\Entity\Project;
 use App\Entity\ProjectStep;
 use App\Entity\Document;
+use App\Repository\ClientRepository;
+use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +22,66 @@ use Symfony\Component\Mailer\MailerInterface;
 #[IsGranted('ROLE_ADMIN')]
 class ProjectController extends AbstractController
 {
+    #[Route('', name: 'admin_projects', methods: ['GET'])]
+    public function index(Request $request, ProjectRepository $projectRepository, ClientRepository $clientRepository): Response
+    {
+        $sort = $request->query->get('sort', 'date');
+        $direction = strtolower($request->query->get('direction', 'desc'));
+
+        if (!in_array($sort, ['date', 'client'], true)) {
+            $sort = 'date';
+        }
+        if (!in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'desc';
+        }
+
+        $dateFrom = $request->query->get('dateFrom', '');
+        $dateTo = $request->query->get('dateTo', '');
+        $clientId = $request->query->get('clientId', '');
+        $statut = $request->query->get('statut', '');
+
+        if (!in_array($statut, ['', 'en_attente', 'en_cours', 'termine'], true)) {
+            $statut = '';
+        }
+
+        $tz = new \DateTimeZone('Europe/Paris');
+
+        try {
+            $dateFromParsed = $dateFrom !== '' ? new \DateTimeImmutable($dateFrom, $tz) : null;
+        } catch (\Exception) {
+            $dateFrom = '';
+            $dateFromParsed = null;
+        }
+
+        try {
+            $dateToParsed = $dateTo !== '' ? new \DateTimeImmutable($dateTo . ' 23:59:59', $tz) : null;
+        } catch (\Exception) {
+            $dateTo = '';
+            $dateToParsed = null;
+        }
+
+        $filters = [
+            'dateFrom' => $dateFromParsed,
+            'dateTo' => $dateToParsed,
+            'clientId' => $clientId !== '' ? (int) $clientId : null,
+            'statut' => $statut !== '' ? $statut : null,
+        ];
+
+        return $this->render('admin/projects/index.html.twig', [
+            'projects' => $projectRepository->findFiltered($filters, $sort, $direction),
+            'sort' => $sort,
+            'direction' => $direction,
+            'clients' => $clientRepository->findBy([], ['nom' => 'ASC']),
+            'selectedClient' => $filters['clientId'] ? $clientRepository->find($filters['clientId']) : null,
+            'filterValues' => [
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'clientId' => $clientId,
+                'statut' => $statut,
+            ],
+        ]);
+    }
+
     #[Route('/nouveau/{clientId}', name: 'admin_project_new', methods: ['GET', 'POST'])]
     public function new(int $clientId, Request $request, EntityManagerInterface $em): Response
     {

@@ -2,12 +2,16 @@
 
 {% block title %}{{ project.titre }} - Admin Neblink{% endblock %}
 
-{% block admin_content %}
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Projets', path: path('admin_projects')},
+        {label: project.titre}
+    ]) }}
+{% endblock %}
 
-    <a href="{{ path('admin_client_show', {id: project.client.id}) }}" class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-sage-dark mb-4">
-        <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
-        Retour à {{ project.client.nom }}
-    </a>
+{% block admin_content %}
 
     <div class="flex items-start justify-between gap-3 mb-6">
         <div>

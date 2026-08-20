@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronLeft, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download  } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag  } from 'lucide';
 
 document.addEventListener('turbo:load', () => {
     createIcons({
@@ -42,19 +42,23 @@ document.addEventListener('turbo:load', () => {
             Mail,
             LogOut,
             Eye,
+            EyeOff,
             ExternalLink,
             Trash2,
             MoreVertical,
             Users,
             FileText,
-            ChevronLeft,
+            ChevronRight,
+            ChevronDown,
             X,
             UserPlus,
             UserCheck,
             FolderKanban,
             Euro,
             Monitor,
-            Download
+            Download,
+            Filter,
+            Flag
         }
     });
 });
@@ -241,41 +245,124 @@ function initDeleteConfirm() {
     });
 }
 
-function initAdminMoreMenu() {
-    const btn = document.getElementById('admin-more-btn');
-    const panel = document.getElementById('admin-more-panel');
-    if (!btn || !panel) return;
+function initPasswordToggles() {
+    document.querySelectorAll('[data-password-toggle]').forEach(btn => {
+        const wrapper = btn.closest('.relative');
+        const input = wrapper ? wrapper.querySelector('input') : null;
+        const iconShow = btn.querySelector('.password-toggle-icon-show');
+        const iconHide = btn.querySelector('.password-toggle-icon-hide');
+        if (!input) return;
+
+        btn.addEventListener('click', () => {
+            const willReveal = input.type === 'password';
+            input.type = willReveal ? 'text' : 'password';
+            iconShow.classList.toggle('hidden', willReveal);
+            iconHide.classList.toggle('hidden', !willReveal);
+            btn.setAttribute('aria-label', willReveal ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+        });
+    });
+}
+
+function initSelectDropdowns() {
+    document.querySelectorAll('[data-select-dropdown]').forEach(dropdown => {
+        const toggle = dropdown.querySelector('[data-select-toggle]');
+        const panel = dropdown.querySelector('[data-select-panel]');
+        const hiddenInput = dropdown.querySelector('[data-select-value]');
+        const label = dropdown.querySelector('[data-select-label]');
+        const options = dropdown.querySelectorAll('[data-select-option]');
+        if (!toggle || !panel || !hiddenInput) return;
+
+        let open = false;
+
+        const setOpen = (show) => {
+            open = show;
+            panel.classList.toggle('opacity-0', !show);
+            panel.classList.toggle('-translate-y-2', !show);
+            panel.classList.toggle('pointer-events-none', !show);
+            toggle.setAttribute('aria-expanded', show);
+        };
+
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setOpen(!open);
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                hiddenInput.value = option.dataset.value;
+                if (label) label.textContent = option.dataset.label;
+
+                options.forEach(o => {
+                    const isSelected = o === option;
+                    o.classList.toggle('text-sage-dark', isSelected);
+                    o.classList.toggle('font-medium', isSelected);
+                    o.classList.toggle('bg-sage-dark/5', isSelected);
+                    o.classList.toggle('text-slate-600', !isSelected);
+                    o.classList.toggle('hover:bg-[#faf9f6]', !isSelected);
+                    const check = o.querySelector('[data-select-check]');
+                    if (check) check.classList.toggle('hidden', !isSelected);
+                });
+
+                setOpen(false);
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (open && !dropdown.contains(e.target)) {
+                setOpen(false);
+            }
+        });
+    });
+}
+
+function initAdminMobileSidebar() {
+    const btn = document.getElementById('admin-burger-btn');
+    const sidebar = document.getElementById('admin-sidebar');
+    const backdrop = document.getElementById('admin-sidebar-backdrop');
+    const closeBtn = document.getElementById('admin-sidebar-close');
+    const bars = btn ? btn.querySelectorAll('[data-burger-bar]') : [];
+    if (!btn || !sidebar || !backdrop) return;
 
     let open = false;
 
-    const positionPanel = () => {
-        const rect = btn.getBoundingClientRect();
-        panel.style.top = `${rect.bottom + 8}px`;
-        panel.style.left = `${Math.max(8, rect.right - 192)}px`;
-    };
-
-    const togglePanel = (show) => {
+    const setOpen = (show) => {
         open = show;
-        if (show) positionPanel();
-        panel.classList.toggle('opacity-0', !show);
-        panel.classList.toggle('-translate-y-2', !show);
-        panel.classList.toggle('pointer-events-none', !show);
+
+        sidebar.classList.toggle('translate-x-0', show);
+        sidebar.classList.toggle('-translate-x-full', !show);
+
+        backdrop.classList.toggle('opacity-100', show);
+        backdrop.classList.toggle('pointer-events-auto', show);
+        backdrop.classList.toggle('opacity-0', !show);
+        backdrop.classList.toggle('pointer-events-none', !show);
+
+        document.body.classList.toggle('overflow-hidden', show);
         btn.setAttribute('aria-expanded', show);
+
+        if (bars[0]) {
+            bars[0].classList.toggle('translate-y-2', show);
+            bars[0].classList.toggle('rotate-45', show);
+        }
+        if (bars[1]) {
+            bars[1].classList.toggle('opacity-0', show);
+            bars[1].classList.toggle('scale-x-0', show);
+        }
+        if (bars[2]) {
+            bars[2].classList.toggle('-translate-y-2', show);
+            bars[2].classList.toggle('-rotate-45', show);
+        }
     };
 
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        togglePanel(!open);
+    btn.addEventListener('click', () => setOpen(!open));
+    if (closeBtn) closeBtn.addEventListener('click', () => setOpen(false));
+    backdrop.addEventListener('click', () => setOpen(false));
+
+    sidebar.querySelectorAll('a, button[type="submit"]').forEach(el => {
+        el.addEventListener('click', () => setOpen(false));
     });
 
-    document.addEventListener('click', (e) => {
-        if (open && !panel.contains(e.target) && e.target !== btn) {
-            togglePanel(false);
-        }
-    });
-
-    window.addEventListener('scroll', () => {
-        if (open) togglePanel(false);
+    document.addEventListener('keydown', (e) => {
+        if (open && e.key === 'Escape') setOpen(false);
     });
 }
 
@@ -286,7 +373,9 @@ document.addEventListener('turbo:load', initScrollAnimations);
 document.addEventListener('turbo:load', initFlashToasts);
 document.addEventListener('turbo:load', initAdminMessagesPanel);
 document.addEventListener('turbo:load', initDeleteConfirm);
-document.addEventListener('turbo:load', initAdminMoreMenu);
+document.addEventListener('turbo:load', initAdminMobileSidebar);
+document.addEventListener('turbo:load', initSelectDropdowns);
+document.addEventListener('turbo:load', initPasswordToggles);
 document.addEventListener('turbo:before-cache', () => {
     document.querySelectorAll('[data-flash-message]').forEach(el => el.remove());
 });

@@ -1,0 +1,207 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Projets - Admin Neblink{% endblock %}
+
+{% macro sortLink(column, label, sort, direction, activeFilters) %}
+    {% set isActive = sort == column %}
+    {% set nextDir = (isActive and direction == 'asc') ? 'desc' : 'asc' %}
+    {% set params = activeFilters|merge({sort: column, direction: nextDir}) %}
+    <a href="{{ path('admin_projects', params) }}" class="inline-flex items-center gap-1 hover:text-slate-700 transition">
+        {{ label }}
+        {% if isActive %}
+            <span class="text-sage-dark">{{ direction == 'asc' ? '↑' : '↓' }}</span>
+        {% endif %}
+    </a>
+{% endmacro %}
+
+{% import _self as helpers %}
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Projets'}
+    ]) }}
+{% endblock %}
+
+{% block admin_content %}
+
+    {% set statutLabels = {
+        'en_attente': 'En attente',
+        'en_cours': 'En cours',
+        'termine': 'Terminé'
+    } %}
+    {% set statutDots = {
+        'en_attente': 'bg-amber-400',
+        'en_cours': 'bg-blue-400',
+        'termine': 'bg-green-400'
+    } %}
+
+    {% set activeFilters = {} %}
+    {% for key, value in filterValues %}
+        {% if value is not empty %}
+            {% set activeFilters = activeFilters|merge({(key): value}) %}
+        {% endif %}
+    {% endfor %}
+
+    <div class="mb-6">
+        <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Admin</p>
+        <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">Projets web</h1>
+    </div>
+
+    <form method="get" class="flex flex-col md:flex-row md:flex-wrap md:items-center gap-2.5 md:gap-2 mb-5">
+        <input type="hidden" name="sort" value="{{ sort }}">
+        <input type="hidden" name="direction" value="{{ direction }}">
+
+        <label class="w-full md:w-auto flex items-center gap-2 bg-white rounded-2xl md:rounded-full px-4 py-3 md:py-2.5 shadow-sm has-[input:focus]:ring-2 has-[input:focus]:ring-sage-dark/25 transition">
+            <i data-lucide="calendar" class="w-4 h-4 text-sage-dark shrink-0"></i>
+            <input type="date" name="dateFrom" value="{{ filterValues.dateFrom }}"
+                class="w-0 flex-1 md:w-[122px] md:flex-none bg-transparent text-sm text-slate-700 focus:outline-none">
+            <span class="text-slate-300 text-sm shrink-0">→</span>
+            <input type="date" name="dateTo" value="{{ filterValues.dateTo }}"
+                class="w-0 flex-1 md:w-[122px] md:flex-none bg-transparent text-sm text-slate-700 focus:outline-none">
+        </label>
+
+        <div class="relative w-full md:w-auto" data-select-dropdown>
+            <input type="hidden" name="clientId" value="{{ filterValues.clientId }}" data-select-value>
+
+            <button type="button" data-select-toggle aria-expanded="false"
+                class="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 bg-white rounded-2xl md:rounded-full px-4 py-3 md:py-2.5 shadow-sm text-sm text-slate-700 hover:shadow-md transition cursor-pointer">
+                <span class="flex items-center gap-2 min-w-0">
+                    <i data-lucide="user" class="w-4 h-4 text-sage-dark shrink-0"></i>
+                    <span data-select-label class="truncate">{{ selectedClient ? selectedClient.nom : 'Tous les clients' }}</span>
+                </span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+            </button>
+
+            <div data-select-panel
+                class="absolute left-0 top-[calc(100%+8px)] w-full md:w-60 bg-white rounded-2xl shadow-xl border border-slate-100 p-1.5 opacity-0 -translate-y-2 pointer-events-none transition-all duration-150 z-50 max-h-72 overflow-y-auto">
+                <button type="button" data-select-option data-value="" data-label="Tous les clients"
+                    class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm text-left transition cursor-pointer {{ selectedClient is null ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                    Tous les clients
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 {{ selectedClient is not null ? 'hidden' : '' }}" data-select-check></i>
+                </button>
+                {% for client in clients %}
+                    <button type="button" data-select-option data-value="{{ client.id }}" data-label="{{ client.nom }}"
+                        class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm text-left transition cursor-pointer {{ selectedClient and selectedClient.id == client.id ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                        <span class="truncate">{{ client.nom }}</span>
+                        <i data-lucide="check" class="w-4 h-4 shrink-0 {{ not (selectedClient and selectedClient.id == client.id) ? 'hidden' : '' }}" data-select-check></i>
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="relative w-full md:w-auto" data-select-dropdown>
+            <input type="hidden" name="statut" value="{{ filterValues.statut }}" data-select-value>
+
+            <button type="button" data-select-toggle aria-expanded="false"
+                class="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 bg-white rounded-2xl md:rounded-full px-4 py-3 md:py-2.5 shadow-sm text-sm text-slate-700 hover:shadow-md transition cursor-pointer">
+                <span class="flex items-center gap-2 min-w-0">
+                    <i data-lucide="flag" class="w-4 h-4 text-sage-dark shrink-0"></i>
+                    <span data-select-label class="truncate">{{ filterValues.statut ? statutLabels[filterValues.statut] : 'Tous les statuts' }}</span>
+                </span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+            </button>
+
+            <div data-select-panel
+                class="absolute left-0 top-[calc(100%+8px)] w-full md:w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-1.5 opacity-0 -translate-y-2 pointer-events-none transition-all duration-150 z-50">
+                <button type="button" data-select-option data-value="" data-label="Tous les statuts"
+                    class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm text-left transition cursor-pointer {{ filterValues.statut is empty ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                    Tous les statuts
+                    <i data-lucide="check" class="w-4 h-4 shrink-0 {{ filterValues.statut is not empty ? 'hidden' : '' }}" data-select-check></i>
+                </button>
+                {% for value, label in statutLabels %}
+                    <button type="button" data-select-option data-value="{{ value }}" data-label="{{ label }}"
+                        class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm text-left transition cursor-pointer {{ filterValues.statut == value ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                        <span class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full {{ statutDots[value] }}"></span>
+                            {{ label }}
+                        </span>
+                        <i data-lucide="check" class="w-4 h-4 shrink-0 {{ filterValues.statut != value ? 'hidden' : '' }}" data-select-check></i>
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button type="submit" class="flex-1 md:flex-none flex items-center justify-center md:justify-start gap-1.5 bg-sage-dark text-white text-sm font-medium rounded-2xl md:rounded-full px-4 py-3 md:py-2.5 cursor-pointer hover:opacity-90 transition shadow-sm">
+                <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+                Filtrer
+            </button>
+
+            {% if activeFilters is not empty %}
+                <a href="{{ path('admin_projects', {sort: sort, direction: direction}) }}"
+                    class="shrink-0 flex items-center gap-1 text-xs text-slate-400 hover:text-red-400 transition px-3 py-3 md:px-2 md:py-2.5">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    Réinitialiser
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if projects is empty %}
+        <p class="text-sm text-slate-400 text-center py-16">Aucun projet ne correspond à ces critères.</p>
+    {% else %}
+        {# ---------- Cartes (mobile) ---------- #}
+        <div class="md:hidden flex flex-col gap-3">
+            {% for project in projects %}
+                <a href="{{ path('admin_project_show', {id: project.id}) }}" class="block bg-white rounded-2xl p-4 hover:shadow-md transition">
+                    <div class="flex items-start justify-between gap-2 mb-1.5">
+                        <p class="font-heading font-medium text-sm text-slate-800">{{ project.titre }}</p>
+                        <span class="text-[11px] font-medium px-2.5 py-1 rounded-full shrink-0 whitespace-nowrap
+                            {{ project.statut == 'en_attente' ? 'bg-amber-100 text-amber-700' : '' }}
+                            {{ project.statut == 'en_cours' ? 'bg-blue-100 text-blue-700' : '' }}
+                            {{ project.statut == 'termine' ? 'bg-green-100 text-green-700' : '' }}">
+                            {{ statutLabels[project.statut] ?? project.statut }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-0.5">{{ project.client.nom }} · {{ project.createdAt|date('d/m/Y') }}</p>
+                    <p class="text-xs text-slate-400">{{ project.steps|length }} étape{{ project.steps|length > 1 ? 's' : '' }} · {{ project.documents|length }} document{{ project.documents|length > 1 ? 's' : '' }}</p>
+                </a>
+            {% endfor %}
+        </div>
+
+        {# ---------- Tableau (desktop) ---------- #}
+        <div class="hidden md:block bg-white rounded-2xl overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-xs font-medium text-slate-400 uppercase tracking-wide border-b border-slate-100">
+                        <th class="px-5 py-3.5 whitespace-nowrap">{{ helpers.sortLink('client', 'Client', sort, direction, activeFilters) }}</th>
+                        <th class="px-5 py-3.5 whitespace-nowrap">{{ helpers.sortLink('date', 'Date', sort, direction, activeFilters) }}</th>
+                        <th class="px-5 py-3.5">Titre</th>
+                        <th class="px-5 py-3.5">Statut</th>
+                        <th class="px-5 py-3.5">Contenu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                        <tr class="{% if not loop.last %}border-b border-slate-50{% endif %} hover:bg-[#faf9f6] transition">
+                            <td class="px-5 py-3.5 whitespace-nowrap">
+                                <a href="{{ path('admin_client_show', {id: project.client.id}) }}" class="text-slate-600 hover:text-sage-dark transition">
+                                    {{ project.client.nom }}
+                                </a>
+                            </td>
+                            <td class="px-5 py-3.5 text-slate-500 whitespace-nowrap">{{ project.createdAt|date('d/m/Y') }}</td>
+                            <td class="px-5 py-3.5">
+                                <a href="{{ path('admin_project_show', {id: project.id}) }}" class="font-medium text-slate-800 hover:text-sage-dark transition">
+                                    {{ project.titre }}
+                                </a>
+                            </td>
+                            <td class="px-5 py-3.5 whitespace-nowrap">
+                                <span class="text-[11px] font-medium px-2.5 py-1 rounded-full
+                                    {{ project.statut == 'en_attente' ? 'bg-amber-100 text-amber-700' : '' }}
+                                    {{ project.statut == 'en_cours' ? 'bg-blue-100 text-blue-700' : '' }}
+                                    {{ project.statut == 'termine' ? 'bg-green-100 text-green-700' : '' }}">
+                                    {{ statutLabels[project.statut] ?? project.statut }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3.5 text-slate-400 text-xs whitespace-nowrap">
+                                {{ project.steps|length }} étape{{ project.steps|length > 1 ? 's' : '' }} · {{ project.documents|length }} document{{ project.documents|length > 1 ? 's' : '' }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+{% endblock %}

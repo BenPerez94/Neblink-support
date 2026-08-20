@@ -12,4 +12,34 @@ class InterventionRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Intervention::class);
     }
+
+    /**
+     * @param array{dateFrom?: ?\DateTimeImmutable, dateTo?: ?\DateTimeImmutable, clientId?: ?int} $filters
+     * @return Intervention[]
+     */
+    public function findFiltered(array $filters, string $sort, string $direction): array
+    {
+        $sortableColumns = [
+            'date' => 'i.date',
+            'client' => 'c.nom',
+        ];
+        $field = $sortableColumns[$sort] ?? $sortableColumns['date'];
+
+        $qb = $this->createQueryBuilder('i')
+            ->join('i.client', 'c')
+            ->addSelect('c')
+            ->orderBy($field, $direction);
+
+        if (!empty($filters['dateFrom'])) {
+            $qb->andWhere('i.date >= :dateFrom')->setParameter('dateFrom', $filters['dateFrom']);
+        }
+        if (!empty($filters['dateTo'])) {
+            $qb->andWhere('i.date <= :dateTo')->setParameter('dateTo', $filters['dateTo']);
+        }
+        if (!empty($filters['clientId'])) {
+            $qb->andWhere('c.id = :clientId')->setParameter('clientId', $filters['clientId']);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

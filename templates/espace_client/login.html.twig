@@ -35,17 +35,29 @@
                     <div class="mb-4">
                         <label for="username" class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Email</label>
                         <input type="email" value="{{ last_username }}" name="_username" id="username" autocomplete="email" required autofocus
-                            class="w-full bg-[#faf9f6] rounded-xl px-4 py-3.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white transition border-l-[3px] border-l-sage-dark shadow-sm">
+                            class="w-full bg-[#faf9f6] rounded-xl px-4 py-3.5 text-base md:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white transition border-l-[3px] border-l-sage-dark shadow-sm">
                     </div>
 
                     <div class="mb-4">
                         <label for="password" class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Mot de passe</label>
-                        <input type="password" name="_password" id="password" autocomplete="current-password" required
-                            class="w-full bg-[#faf9f6] rounded-xl px-4 py-3.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white transition border-l-[3px] border-l-sage shadow-sm">
+                        <div class="relative">
+                            <input type="password" name="_password" id="password" autocomplete="current-password" required
+                                class="w-full bg-[#faf9f6] rounded-xl px-4 py-3.5 pr-11 text-base md:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white transition border-l-[3px] border-l-sage shadow-sm">
+                            <button type="button" data-password-toggle tabindex="-1" aria-label="Afficher le mot de passe"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition cursor-pointer">
+                                <i data-lucide="eye" class="w-4.5 h-4.5 password-toggle-icon-show"></i>
+                                <i data-lucide="eye-off" class="w-4.5 h-4.5 password-toggle-icon-hide hidden"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                    <div class="text-right mb-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <label for="remember_me" class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none">
+                            <input type="checkbox" name="_remember_me" id="remember_me" value="on"
+                                class="w-3.5 h-3.5 rounded border-slate-300 text-sage-dark focus:ring-sage-dark cursor-pointer">
+                            Rester connecté
+                        </label>
                         <a href="{{ path('espace_client_forgot_password') }}" class="text-xs text-sage-dark hover:underline">Mot de passe oublié ?</a>
                     </div>
 

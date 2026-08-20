@@ -2,6 +2,15 @@
 
 {% block title %}Nouveau client - Admin Neblink{% endblock %}
 
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Clients', path: path('admin_clients')},
+        {label: 'Nouveau client'}
+    ]) }}
+{% endblock %}
+
 {% block admin_content %}
 
     <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Admin</p>

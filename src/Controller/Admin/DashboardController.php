@@ -24,16 +24,6 @@ class DashboardController extends AbstractController
 
         $debutMois = new \DateTimeImmutable('first day of this month 00:00:00', new \DateTimeZone('Europe/Paris'));
 
-        $traitesCeMois = $em->createQueryBuilder()
-            ->select('COUNT(c.id)')
-            ->from(Contact::class, 'c')
-            ->where('c.statut = :statut')
-            ->andWhere('c.createdAt >= :debut')
-            ->setParameter('statut', 'traite')
-            ->setParameter('debut', $debutMois)
-            ->getQuery()
-            ->getSingleScalarResult();
-
         $totalClients = $em->getRepository(Client::class)->count([]);
 
         $projetsEnCours = $em->getRepository(Project::class)->count(['statut' => 'en_cours']);
@@ -68,8 +58,6 @@ class DashboardController extends AbstractController
 
         return $this->render('admin/dashboard.html.twig', [
             'nouveauxMessages' => $repo->count(['statut' => 'nouveau']),
-            'enCoursMessages' => $repo->count(['statut' => 'en_cours']),
-            'traitesCeMois' => $traitesCeMois,
             'derniersMessages' => $repo->findBy([], ['createdAt' => 'DESC'], 5),
             'totalClients' => $totalClients,
             'projetsEnCours' => $projetsEnCours,
