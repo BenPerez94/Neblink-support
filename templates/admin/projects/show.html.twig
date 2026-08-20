@@ -2,6 +2,51 @@
 
 {% block title %}{{ project.titre }} - Admin Neblink{% endblock %}
 
+{% macro stepRow(step, sub) %}
+    <div class="group" data-step-row>
+        <div data-step-display>
+            <div class="flex items-center gap-2.5">
+                <form method="post" action="{{ path('admin_project_step_toggle', {id: step.id}) }}" class="shrink-0">
+                    <button type="submit" class="{{ sub ? 'w-4 h-4' : 'w-5 h-5' }} rounded flex items-center justify-center cursor-pointer {{ step.termine ? 'bg-sage-dark' : 'bg-slate-200 hover:bg-slate-300' }} transition">
+                        {% if step.termine %}
+                            <i data-lucide="check" class="{{ sub ? 'w-2.5 h-2.5' : 'w-3 h-3' }} text-white"></i>
+                        {% endif %}
+                    </button>
+                </form>
+
+                <span class="flex-1 min-w-0 {{ sub ? 'text-sm' : 'text-base' }} {{ step.termine ? 'text-slate-700' : 'text-slate-500' }}">{{ step.titre }}</span>
+
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0">
+                    <button type="button" data-step-edit-toggle title="Modifier" class="text-slate-300 hover:text-sage-dark cursor-pointer">
+                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <form method="post" action="{{ path('admin_project_step_delete', {id: step.id}) }}">
+                        <button type="submit" title="Supprimer" class="text-slate-300 hover:text-red-400 cursor-pointer">
+                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if step.description %}
+                <p class="text-xs text-slate-400 mt-1 {{ sub ? 'pl-6.5' : 'pl-7.5' }}">{{ step.description }}</p>
+            {% endif %}
+        </div>
+
+        <form method="post" action="{{ path('admin_project_step_edit', {id: step.id}) }}" data-step-edit class="hidden flex flex-col gap-2.5 pt-2 mt-1 border-t border-slate-100">
+            <input type="text" name="titre" value="{{ step.titre }}" required
+                class="text-base bg-transparent border-0 border-b border-slate-200 px-0 py-1.5 focus:outline-none focus:border-sage-dark transition">
+            <textarea name="description" rows="2" placeholder="Description (optionnel)"
+                class="text-sm text-slate-400 bg-transparent border-0 border-b border-slate-200 px-0 py-1.5 focus:outline-none focus:border-sage-dark transition resize-none">{{ step.description }}</textarea>
+            <div class="flex items-center gap-2">
+                <button type="submit" class="text-sm font-medium bg-sage-dark text-white rounded-lg px-3 py-1.5 cursor-pointer hover:opacity-90 transition">Enregistrer</button>
+                <button type="button" data-step-edit-cancel class="text-sm text-slate-400 hover:text-slate-600 cursor-pointer">Annuler</button>
+            </div>
+        </form>
+    </div>
+{% endmacro %}
+
+{% import _self as helpers %}
 {% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
 {% block breadcrumb %}
     {{ breadcrumb.render([
@@ -13,82 +58,159 @@
 
 {% block admin_content %}
 
-    <div class="flex items-start justify-between gap-3 mb-6">
-        <div>
-            <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Projet</p>
-            <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">{{ project.titre }}</h1>
-            {% if project.description %}
-                <p class="text-sm text-slate-500 mt-2 max-w-lg">{{ project.description }}</p>
-            {% endif %}
-        </div>
+    {% set statutLabels = {'en_attente': 'En attente', 'en_cours': 'En cours', 'termine': 'Terminé'} %}
+    {% set statutDots = {'en_attente': 'bg-amber-400', 'en_cours': 'bg-blue-400', 'termine': 'bg-green-400'} %}
 
-        <form method="post" action="{{ path('admin_project_update_statut', {id: project.id}) }}" class="flex items-center gap-2 shrink-0">
-            <select name="statut" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-sage-dark">
-                <option value="en_attente" {{ project.statut == 'en_attente' ? 'selected' }}>En attente</option>
-                <option value="en_cours" {{ project.statut == 'en_cours' ? 'selected' }}>En cours</option>
-                <option value="termine" {{ project.statut == 'termine' ? 'selected' }}>Terminé</option>
-            </select>
-            <button type="submit" class="text-xs bg-sage-dark text-white rounded-lg px-3 py-1.5 cursor-pointer hover:opacity-90 transition">
-                <i data-lucide="check" class="w-3.5 h-3.5"></i>
-            </button>
-        </form>
+    {# ---------- En-tête (carte vedette) ---------- #}
+    <div class="relative overflow-hidden rounded-3xl bg-linear-to-br from-sage-dark via-sage to-sage-light p-6 md:p-8 mb-5 text-white shadow-lg shadow-sage-dark/15">
+        <div class="absolute w-64 h-64 rounded-full bg-white/10 blur-3xl -top-20 -right-14"></div>
+        <i data-lucide="folder-kanban" class="absolute -right-4 -bottom-6 w-32 h-32 text-white/[0.07]"></i>
+
+        <div class="relative flex flex-col md:flex-row md:items-start md:justify-between gap-5">
+            <div class="min-w-0">
+                <form method="post" action="{{ path('admin_project_update_statut', {id: project.id}) }}" class="inline-flex items-center gap-2 mb-3">
+                    <div class="relative" data-select-dropdown>
+                        <input type="hidden" name="statut" value="{{ project.statut }}" data-select-value>
+                        <button type="button" data-select-toggle aria-expanded="false"
+                            class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-xs font-medium pl-3 pr-2.5 py-1.5 rounded-full transition cursor-pointer">
+                            <span data-select-dot class="w-1.5 h-1.5 rounded-full shrink-0 {{ statutDots[project.statut] }}"></span>
+                            <span data-select-label>{{ statutLabels[project.statut] ?? project.statut }}</span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 text-white/70 shrink-0"></i>
+                        </button>
+                        <div data-select-panel
+                            class="absolute left-0 top-[calc(100%+6px)] w-36 bg-white rounded-xl shadow-xl border border-slate-100 p-1 opacity-0 -translate-y-2 pointer-events-none transition-all duration-150 z-30">
+                            {% for value, label in statutLabels %}
+                                <button type="button" data-select-option data-value="{{ value }}" data-label="{{ label }}" data-dot-class="{{ statutDots[value] }}"
+                                    class="w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-xs text-left transition cursor-pointer {{ project.statut == value ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ statutDots[value] }}"></span>
+                                        {{ label }}
+                                    </span>
+                                    <i data-lucide="check" class="w-3.5 h-3.5 shrink-0 {{ project.statut != value ? 'hidden' : '' }}" data-select-check></i>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" title="Mettre à jour le statut" class="w-7 h-7 flex items-center justify-center bg-white/15 hover:bg-white/25 text-white rounded-full cursor-pointer transition shrink-0">
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </button>
+                </form>
+
+                <h1 class="font-heading font-semibold text-2xl md:text-3xl truncate">{{ project.titre }}</h1>
+                <p class="text-sm text-white/70 mt-2">
+                    <a href="{{ path('admin_client_show', {id: project.client.id}) }}" class="hover:text-white transition underline decoration-white/30 underline-offset-2">{{ project.client.nom }}</a>
+                    · {{ project.steps|length }} étape{{ project.steps|length > 1 ? 's' : '' }} · {{ project.documents|length }} document{{ project.documents|length > 1 ? 's' : '' }}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="{{ path('admin_project_edit', {id: project.id}) }}" title="Modifier" class="w-10 h-10 flex items-center justify-center bg-white/15 hover:bg-white/25 rounded-xl transition">
+                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                </a>
+                <form method="post" action="{{ path('admin_project_delete', {id: project.id}) }}" data-confirm-delete data-confirm-title="Supprimer ce projet ?" data-confirm-text="Les étapes et documents associés seront également supprimés.">
+                    <button type="submit" title="Supprimer" class="w-10 h-10 flex items-center justify-center bg-white/15 hover:bg-red-400/40 rounded-xl cursor-pointer transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    {# ---------- Description ---------- #}
+    {% if project.description %}
+        <div class="bg-white rounded-3xl p-6 md:p-8 mb-4">
+            <p class="flex items-center gap-2 font-heading font-medium text-base text-slate-800 mb-3">
+                <span class="w-6 h-6 rounded-md bg-sage-dark/10 flex items-center justify-center">
+                    <i data-lucide="align-left" class="w-3.5 h-3.5 text-sage-dark"></i>
+                </span>
+                Description
+            </p>
+            <p class="text-base text-slate-600 leading-relaxed whitespace-pre-line">{{ project.description }}</p>
+        </div>
+    {% endif %}
+
+    {# ---------- Étapes & Documents ---------- #}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {# Étapes #}
-        <div class="bg-white rounded-2xl p-6">
-            <p class="font-heading font-medium text-sm text-slate-800 mb-4">Étapes</p>
+        <div class="md:col-span-2 bg-white rounded-3xl p-6 md:p-8">
+            <p class="flex items-center gap-2 font-heading font-medium text-base text-slate-800 mb-4">
+                <span class="w-6 h-6 rounded-md bg-sage-dark/10 flex items-center justify-center">
+                    <i data-lucide="list-checks" class="w-3.5 h-3.5 text-sage-dark"></i>
+                </span>
+                Étapes
+            </p>
 
-            <div class="flex flex-col gap-2 mb-4">
-                {% for step in project.steps %}
-                    <div class="flex items-center gap-2.5 group">
-                        <form method="post" action="{{ path('admin_project_step_toggle', {id: step.id}) }}">
-                            <button type="submit" class="w-5 h-5 shrink-0 rounded-full flex items-center justify-center cursor-pointer {{ step.termine ? 'bg-sage-dark' : 'bg-slate-200 hover:bg-slate-300' }} transition">
-                                {% if step.termine %}
-                                    <i data-lucide="check" class="w-3 h-3 text-white"></i>
-                                {% endif %}
-                            </button>
-                        </form>
-                        <span class="flex-1 text-sm {{ step.termine ? 'text-slate-700' : 'text-slate-500' }}">{{ step.titre }}</span>
-                        <form method="post" action="{{ path('admin_project_step_delete', {id: step.id}) }}" class="opacity-0 group-hover:opacity-100 transition">
-                            <button type="submit" class="text-slate-300 hover:text-red-400 cursor-pointer">
-                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </form>
+            <div class="flex flex-col gap-4 mb-4">
+                {% for step in project.steps|filter(s => s.parent is null) %}
+                    <div class="{% if not loop.first %}pt-4 border-t border-slate-50{% endif %}">
+                        {{ helpers.stepRow(step, false) }}
+
+                        <div class="pl-7 mt-2 flex flex-col gap-2">
+                            {% for sub in step.children %}
+                                {{ helpers.stepRow(sub, true) }}
+                            {% endfor %}
+
+                            <div data-add-wrapper class="mt-0.5">
+                                <button type="button" data-add-toggle class="inline-flex items-center gap-1 text-sm font-medium text-sage-dark hover:text-sage-dark/80 transition cursor-pointer">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                    Ajouter une sous-étape
+                                </button>
+                                <form method="post" action="{{ path('admin_project_substep_add', {id: step.id}) }}" data-add-form class="hidden w-full flex flex-col gap-1.5">
+                                    <input type="text" name="titre" placeholder="Sous-étape" required
+                                        class="text-sm bg-transparent border-0 border-b border-slate-200 px-0 py-1 focus:outline-none focus:border-sage-dark transition">
+                                    <div class="flex items-center gap-2">
+                                        <button type="submit" class="text-xs font-medium bg-sage-dark text-white rounded-lg px-2.5 py-1 cursor-pointer hover:opacity-90 transition">Ajouter</button>
+                                        <button type="button" data-add-cancel class="text-xs text-slate-400 hover:text-slate-600 cursor-pointer">Annuler</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 {% else %}
-                    <p class="text-xs text-slate-400">Aucune étape.</p>
+                    <p class="text-sm text-slate-400">Aucune étape.</p>
                 {% endfor %}
             </div>
 
-            <form method="post" action="{{ path('admin_project_step_add', {id: project.id}) }}" class="flex items-center gap-2">
-                <input type="text" name="titre" placeholder="Nouvelle étape" required
-                    class="flex-1 text-sm bg-[#faf9f6] border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-sage-dark">
-                <button type="submit" class="shrink-0 bg-sage-dark text-white rounded-lg px-3 py-2 cursor-pointer hover:opacity-90 transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
+            <div data-add-wrapper class="flex justify-end">
+                <button type="button" data-add-toggle class="inline-flex items-center gap-1.5 text-base font-medium text-sage-dark bg-sage-dark/5 hover:bg-sage-dark/10 rounded-full pl-2.5 pr-3.5 py-1.5 transition cursor-pointer">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    Ajouter une étape
                 </button>
-            </form>
+                <form method="post" action="{{ path('admin_project_step_add', {id: project.id}) }}" data-add-form class="hidden w-full flex flex-col gap-2 pt-2 mt-1 border-t border-slate-100">
+                    <input type="text" name="titre" placeholder="Nouvelle étape" required
+                        class="text-base bg-transparent border-0 border-b border-slate-200 px-0 py-1.5 focus:outline-none focus:border-sage-dark transition">
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="text-sm font-medium bg-sage-dark text-white rounded-lg px-3 py-1.5 cursor-pointer hover:opacity-90 transition">Ajouter</button>
+                        <button type="button" data-add-cancel class="text-sm text-slate-400 hover:text-slate-600 cursor-pointer">Annuler</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         {# Documents #}
-        <div class="bg-white rounded-2xl p-6">
-            <p class="font-heading font-medium text-sm text-slate-800 mb-4">Documents</p>
+        <div class="bg-white rounded-3xl p-6 md:p-8">
+            <p class="flex items-center gap-2 font-heading font-medium text-base text-slate-800 mb-4">
+                <span class="w-6 h-6 rounded-md bg-sage-dark/10 flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-sage-dark"></i>
+                </span>
+                Documents
+            </p>
 
             <div class="flex flex-col gap-2 mb-4">
                 {% for document in project.documents %}
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="file-text" class="w-4 h-4 text-slate-400 shrink-0"></i>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm text-slate-700 truncate">{{ document.nom }}</p>
-                            <p class="text-[11px] text-slate-400">
+                            <p class="text-base text-slate-700 truncate">{{ document.nom }}</p>
+                            <p class="text-xs text-slate-400">
                                 {{ document.type|capitalize }}{% if document.montant %} · {{ document.montant|number_format(2, ',', ' ') }} €{% endif %}
                             </p>
                         </div>
 
                         {% if document.type == 'facture' %}
                             <form method="post" action="{{ path('admin_project_document_payment', {id: document.id}) }}">
-                                <button type="submit" class="text-[11px] font-medium px-2 py-1 rounded-full cursor-pointer {{ document.statutPaiement == 'payee' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                                <button type="submit" class="text-xs font-medium px-2 py-1 rounded-full cursor-pointer {{ document.statutPaiement == 'payee' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
                                     {{ document.statutPaiement == 'payee' ? 'Payée' : 'En attente' }}
                                 </button>
                             </form>
@@ -101,27 +223,49 @@
                         </form>
                     </div>
                 {% else %}
-                    <p class="text-xs text-slate-400">Aucun document.</p>
+                    <p class="text-sm text-slate-400">Aucun document.</p>
                 {% endfor %}
             </div>
 
-            <form method="post" action="{{ path('admin_project_document_add', {id: project.id}) }}" enctype="multipart/form-data" class="flex flex-col gap-2 pt-3 border-t border-slate-100">
-                <input type="text" name="nom" placeholder="Nom du document" required
-                    class="text-sm bg-[#faf9f6] border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-sage-dark">
-                <div class="flex items-center gap-2">
-                    <select name="type" required class="text-sm bg-[#faf9f6] border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-sage-dark">
-                        <option value="devis">Devis</option>
-                        <option value="facture">Facture</option>
-                    </select>
-                    <input type="number" step="0.01" name="montant" placeholder="Montant (€)"
-                        class="w-28 text-sm bg-[#faf9f6] border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-sage-dark">
-                </div>
-                <input type="file" name="fichier" accept="application/pdf" required
-                    class="text-xs text-slate-500 file:mr-2 file:text-xs file:bg-sage-dark/10 file:text-sage-dark file:rounded-lg file:border-0 file:px-2 file:py-1.5 file:cursor-pointer">
-                <button type="submit" class="bg-sage-dark text-white text-sm rounded-lg py-2 cursor-pointer hover:opacity-90 transition">
-                    Ajouter
+            <div data-add-wrapper class="flex justify-end pt-3 border-t border-slate-100">
+                <button type="button" data-add-toggle class="inline-flex items-center gap-1.5 text-base font-medium text-sage-dark bg-sage-dark/5 hover:bg-sage-dark/10 rounded-full pl-2.5 pr-3.5 py-1.5 transition cursor-pointer">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    Ajouter un document
                 </button>
-            </form>
+                <form method="post" action="{{ path('admin_project_document_add', {id: project.id}) }}" enctype="multipart/form-data" data-add-form class="hidden w-full flex flex-col gap-2">
+                    <input type="text" name="nom" placeholder="Nom du document" required
+                        class="text-base bg-transparent border-0 border-b border-slate-200 px-0 py-1.5 focus:outline-none focus:border-sage-dark transition">
+                    <div class="flex items-center gap-2">
+                        {% set documentTypeLabels = {'devis': 'Devis', 'facture': 'Facture'} %}
+                        <div class="relative flex-1" data-select-dropdown>
+                            <input type="hidden" name="type" value="devis" data-select-value>
+                            <button type="button" data-select-toggle aria-expanded="false"
+                                class="w-full flex items-center justify-between gap-1.5 text-base bg-[#faf9f6] border border-slate-200 rounded-xl px-3 py-2 text-slate-700 hover:border-sage-dark/40 transition cursor-pointer">
+                                <span data-select-label>Devis</span>
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                            </button>
+                            <div data-select-panel
+                                class="absolute left-0 top-[calc(100%+4px)] w-full bg-white rounded-xl shadow-xl border border-slate-100 p-1 opacity-0 -translate-y-2 pointer-events-none transition-all duration-150 z-30">
+                                {% for value, label in documentTypeLabels %}
+                                    <button type="button" data-select-option data-value="{{ value }}" data-label="{{ label }}"
+                                        class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-base text-left transition cursor-pointer {{ value == 'devis' ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                                        {{ label }}
+                                        <i data-lucide="check" class="w-4 h-4 shrink-0 {{ value != 'devis' ? 'hidden' : '' }}" data-select-check></i>
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <input type="number" step="0.01" name="montant" placeholder="Montant (€)"
+                            class="w-28 text-base bg-[#faf9f6] border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sage-dark">
+                    </div>
+                    <input type="file" name="fichier" accept="application/pdf" required
+                        class="text-sm text-slate-500 file:mr-2 file:text-sm file:bg-sage-dark/10 file:text-sage-dark file:rounded-lg file:border-0 file:px-2 file:py-1.5 file:cursor-pointer">
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="text-sm font-medium bg-sage-dark text-white rounded-lg px-3 py-1.5 cursor-pointer hover:opacity-90 transition">Ajouter</button>
+                        <button type="button" data-add-cancel class="text-sm text-slate-400 hover:text-slate-600 cursor-pointer">Annuler</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
     </div>

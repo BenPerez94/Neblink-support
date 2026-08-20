@@ -109,6 +109,50 @@ class ProjectController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/modifier', name: 'admin_project_edit', methods: ['GET', 'POST'])]
+    public function edit(Project $project, Request $request, EntityManagerInterface $em): Response
+    {
+        if ($request->isMethod('POST')) {
+            $titre = trim((string) $request->request->get('titre'));
+            if ($titre === '') {
+                $this->addFlash('error', 'Le titre du projet est obligatoire.');
+
+                return $this->render('admin/projects/edit.html.twig', [
+                    'project' => $project,
+                ]);
+            }
+
+            $project->setTitre($titre);
+            $project->setDescription($request->request->get('description') ?: null);
+            $em->flush();
+
+            $this->addFlash('success', 'Projet modifié.');
+
+            return $this->redirectToRoute('admin_project_show', ['id' => $project->getId()]);
+        }
+
+        return $this->render('admin/projects/edit.html.twig', [
+            'project' => $project,
+        ]);
+    }
+
+    #[Route('/{id}/supprimer', name: 'admin_project_delete', methods: ['POST'])]
+    public function delete(Project $project, Request $request, EntityManagerInterface $em): Response
+    {
+        $clientId = $project->getClient()->getId();
+        $em->remove($project);
+        $em->flush();
+
+        $this->addFlash('success', 'Projet supprimé.');
+
+        $referer = $request->headers->get('referer');
+        if ($referer && str_contains((string) parse_url($referer, PHP_URL_PATH), '/admin/projets')) {
+            return $this->redirectToRoute('admin_projects');
+        }
+
+        return $this->redirectToRoute('admin_client_show', ['id' => $clientId]);
+    }
+
     #[Route('/{id}', name: 'admin_project_show')]
     public function show(Project $project): Response
     {
@@ -136,10 +180,12 @@ class ProjectController extends AbstractController
         $titre = $request->request->get('titre');
 
         if ($titre) {
+            $topLevelCount = $project->getSteps()->filter(fn (ProjectStep $s) => $s->getParent() === null)->count();
+
             $step = new ProjectStep();
             $step->setTitre($titre);
             $step->setProject($project);
-            $step->setPosition($project->getSteps()->count());
+            $step->setPosition($topLevelCount);
 
             $em->persist($step);
             $em->flush();
@@ -148,10 +194,56 @@ class ProjectController extends AbstractController
         return $this->redirectToRoute('admin_project_show', ['id' => $project->getId()]);
     }
 
+    #[Route('/etapes/{id}/sous-etapes/ajouter', name: 'admin_project_substep_add', methods: ['POST'])]
+    public function addSubStep(ProjectStep $parentStep, Request $request, EntityManagerInterface $em): Response
+    {
+        $titre = $request->request->get('titre');
+
+        if ($titre) {
+            $subStep = new ProjectStep();
+            $subStep->setTitre($titre);
+            $subStep->setProject($parentStep->getProject());
+            $subStep->setParent($parentStep);
+            $subStep->setPosition($parentStep->getChildren()->count());
+
+            $em->persist($subStep);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('admin_project_show', ['id' => $parentStep->getProject()->getId()]);
+    }
+
+    #[Route('/etapes/{id}/modifier', name: 'admin_project_step_edit', methods: ['POST'])]
+    public function editStep(ProjectStep $step, Request $request, EntityManagerInterface $em): Response
+    {
+        $titre = trim((string) $request->request->get('titre'));
+
+        if ($titre !== '') {
+            $step->setTitre($titre);
+            $step->setDescription($request->request->get('description') ?: null);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('admin_project_show', ['id' => $step->getProject()->getId()]);
+    }
+
     #[Route('/etapes/{id}/toggle', name: 'admin_project_step_toggle', methods: ['POST'])]
     public function toggleStep(ProjectStep $step, EntityManagerInterface $em): Response
     {
         $step->setTermine(!$step->isTermine());
+
+        $parent = $step->getParent();
+        if ($parent !== null && $parent->getChildren()->count() > 0) {
+            $allChildrenDone = true;
+            foreach ($parent->getChildren() as $child) {
+                if (!$child->isTermine()) {
+                    $allChildrenDone = false;
+                    break;
+                }
+            }
+            $parent->setTermine($allChildrenDone);
+        }
+
         $em->flush();
 
         return $this->redirectToRoute('admin_project_show', ['id' => $step->getProject()->getId()]);

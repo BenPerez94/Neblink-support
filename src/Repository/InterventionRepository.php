@@ -14,7 +14,7 @@ class InterventionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array{dateFrom?: ?\DateTimeImmutable, dateTo?: ?\DateTimeImmutable, clientId?: ?int} $filters
+     * @param array{dateFrom?: ?\DateTimeImmutable, dateTo?: ?\DateTimeImmutable, clientId?: ?int, statut?: ?string} $filters
      * @return Intervention[]
      */
     public function findFiltered(array $filters, string $sort, string $direction): array
@@ -38,6 +38,9 @@ class InterventionRepository extends ServiceEntityRepository
         }
         if (!empty($filters['clientId'])) {
             $qb->andWhere('c.id = :clientId')->setParameter('clientId', $filters['clientId']);
+        }
+        if (!empty($filters['statut'])) {
+            $qb->andWhere('i.statut = :statut')->setParameter('statut', $filters['statut']);
         }
 
         return $qb->getQuery()->getResult();

@@ -16,8 +16,14 @@ class Intervention
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $titre = null;
+
     #[ORM\Column(type: 'text')]
     private ?string $description = null;
+
+    #[ORM\Column(length: 20, options: ['default' => 'en_attente'])]
+    private ?string $statut = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $date = null;
@@ -41,11 +47,23 @@ class Intervention
     public function __construct()
     {
         $this->date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $this->statut = 'en_attente';
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+
+    public function setTitre(?string $titre): static
+    {
+        $this->titre = $titre;
+        return $this;
     }
 
     public function getDescription(): ?string
@@ -56,6 +74,17 @@ class Intervention
     public function setDescription(string $description): static
     {
         $this->description = $description;
+        return $this;
+    }
+
+    public function getStatut(): ?string
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
         return $this;
     }
 

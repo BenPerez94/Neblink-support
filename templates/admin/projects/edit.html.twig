@@ -1,0 +1,45 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Modifier {{ project.titre }} - Admin Neblink{% endblock %}
+
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Projets', path: path('admin_projects')},
+        {label: project.titre, path: path('admin_project_show', {id: project.id})},
+        {label: 'Modifier'}
+    ]) }}
+{% endblock %}
+
+{% block admin_content %}
+
+    <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Modifier le projet</p>
+    <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-6">{{ project.client.nom }}</h1>
+
+    <div class="bg-white rounded-2xl p-6 md:p-8 max-w-lg">
+        <form method="post">
+            <div class="mb-4">
+                <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Titre du projet</label>
+                <input type="text" name="titre" required value="{{ project.titre }}"
+                    class="w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Description (optionnel)</label>
+                <textarea name="description" rows="4"
+                    class="w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition resize-none">{{ project.description }}</textarea>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button type="submit" class="flex-1 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl py-3.5 cursor-pointer hover:opacity-90 transition">
+                    Enregistrer
+                </button>
+                <a href="{{ path('admin_project_show', {id: project.id}) }}" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-3.5">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}

@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag  } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft  } from 'lucide';
 
 document.addEventListener('turbo:load', () => {
     createIcons({
@@ -58,7 +58,10 @@ document.addEventListener('turbo:load', () => {
             Monitor,
             Download,
             Filter,
-            Flag
+            Flag,
+            Pencil,
+            ListChecks,
+            AlignLeft
         }
     });
 });
@@ -227,8 +230,8 @@ function initDeleteConfirm() {
             e.preventDefault();
 
             Swal.fire({
-                title: 'Supprimer ce message ?',
-                text: 'Cette action est définitive.',
+                title: form.dataset.confirmTitle || 'Supprimer cet élément ?',
+                text: form.dataset.confirmText || 'Cette action est définitive.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Supprimer',
@@ -287,10 +290,23 @@ function initSelectDropdowns() {
             setOpen(!open);
         });
 
+        const dot = dropdown.querySelector('[data-select-dot]');
+        const fallbackIcon = dropdown.querySelector('[data-select-icon]');
+
         options.forEach(option => {
             option.addEventListener('click', () => {
                 hiddenInput.value = option.dataset.value;
                 if (label) label.textContent = option.dataset.label;
+                if (dot) {
+                    if (option.dataset.dotClass) {
+                        dot.className = 'w-1.5 h-1.5 rounded-full shrink-0 ' + option.dataset.dotClass;
+                        dot.classList.remove('hidden');
+                        if (fallbackIcon) fallbackIcon.classList.add('hidden');
+                    } else {
+                        dot.classList.add('hidden');
+                        if (fallbackIcon) fallbackIcon.classList.remove('hidden');
+                    }
+                }
 
                 options.forEach(o => {
                     const isSelected = o === option;
@@ -312,6 +328,56 @@ function initSelectDropdowns() {
                 setOpen(false);
             }
         });
+    });
+}
+
+function initInlineAddForms() {
+    document.querySelectorAll('[data-add-toggle]').forEach(btn => {
+        const wrapper = btn.closest('[data-add-wrapper]');
+        if (!wrapper) return;
+
+        const form = wrapper.querySelector('[data-add-form]');
+        const cancelBtn = wrapper.querySelector('[data-add-cancel]');
+        const input = form ? form.querySelector('input[type="text"]') : null;
+        if (!form) return;
+
+        btn.addEventListener('click', () => {
+            btn.style.display = 'none';
+            form.classList.remove('hidden');
+            if (input) input.focus();
+        });
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                form.classList.add('hidden');
+                btn.style.display = '';
+                if (input) input.value = '';
+            });
+        }
+    });
+}
+
+function initStepEditors() {
+    document.querySelectorAll('[data-step-edit-toggle]').forEach(btn => {
+        const row = btn.closest('[data-step-row]');
+        if (!row) return;
+
+        const display = row.querySelector('[data-step-display]');
+        const editForm = row.querySelector('[data-step-edit]');
+        const cancelBtn = row.querySelector('[data-step-edit-cancel]');
+        if (!display || !editForm) return;
+
+        btn.addEventListener('click', () => {
+            display.classList.add('hidden');
+            editForm.classList.remove('hidden');
+        });
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                editForm.classList.add('hidden');
+                display.classList.remove('hidden');
+            });
+        }
     });
 }
 
@@ -374,6 +440,8 @@ document.addEventListener('turbo:load', initFlashToasts);
 document.addEventListener('turbo:load', initAdminMessagesPanel);
 document.addEventListener('turbo:load', initDeleteConfirm);
 document.addEventListener('turbo:load', initAdminMobileSidebar);
+document.addEventListener('turbo:load', initStepEditors);
+document.addEventListener('turbo:load', initInlineAddForms);
 document.addEventListener('turbo:load', initSelectDropdowns);
 document.addEventListener('turbo:load', initPasswordToggles);
 document.addEventListener('turbo:before-cache', () => {
