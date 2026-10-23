@@ -3,9 +3,11 @@
 namespace App\Twig;
 
 use App\Repository\ArticleRepository;
+use App\Service\Blog\ImagePartage;
 use App\Service\Blog\Typographie;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class BlogExtension extends AbstractExtension
 {
@@ -18,6 +20,17 @@ class BlogExtension extends AbstractExtension
     private const VARIANTES = [
         'a' => 'aàâä', 'c' => 'cç', 'e' => 'eéèêë', 'i' => 'iîï', 'o' => 'oôö', 'u' => 'uùûü', 'y' => 'yÿ',
     ];
+
+    public function __construct(private ImagePartage $imagePartage)
+    {
+    }
+
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('image_partage', [$this->imagePartage, 'cheminPublic']),
+        ];
+    }
 
     public function getFilters(): array
     {

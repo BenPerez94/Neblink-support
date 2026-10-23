@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft, Share2 } from 'lucide';
 
 function renderIcons() {
     createIcons({
@@ -80,7 +80,8 @@ function renderIcons() {
             Tag,
             Tags,
             Search,
-            ArrowLeft
+            ArrowLeft,
+            Share2
         }
     });
 }
@@ -530,6 +531,21 @@ function initCopyLinks() {
     });
 }
 
+// Bouton « Partager » : ouvre le menu de partage du téléphone (Instagram, WhatsApp, SMS…)
+function initNativeShare() {
+    if (!navigator.share) return;
+
+    document.querySelectorAll('[data-native-share]').forEach(btn => {
+        btn.hidden = false;
+        btn.addEventListener('click', () => {
+            navigator.share({ title: btn.dataset.shareTitle, url: btn.dataset.shareUrl }).catch(() => {
+                // Partage annulé par l'utilisateur : rien à faire
+            });
+        });
+    });
+}
+
+document.addEventListener('turbo:load', initNativeShare);
 document.addEventListener('turbo:load', initBlogReadingProgress);
 document.addEventListener('turbo:load', initBlogToc);
 document.addEventListener('turbo:load', initCopyLinks);
