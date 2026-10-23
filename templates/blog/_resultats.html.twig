@@ -26,9 +26,9 @@
                 <span class="inline-flex items-center gap-1 bg-sage-dark/10 text-sage-dark font-medium rounded-full px-2.5 py-1">À la une</span>
                 {% if aLaUne.category %}<span class="text-sage-dark font-medium ml-2">{{ aLaUne.category.nom }}</span>{% endif %}
             </p>
-            <h2 class="font-heading font-medium text-xl md:text-2xl text-slate-800 leading-snug mb-3 group-hover:text-sage-dark transition">{{ aLaUne.titre }}</h2>
+            <h2 class="font-heading font-medium text-xl md:text-2xl text-slate-800 leading-snug mb-3 group-hover:text-sage-dark transition">{{ aLaUne.titre|typo }}</h2>
             {% if aLaUne.extrait %}
-                <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 mb-4">{{ aLaUne.extrait }}</p>
+                <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 mb-4">{{ aLaUne.extrait|typo }}</p>
             {% endif %}
             <p class="text-xs text-slate-400">{{ aLaUne.datePublication|date_fr }} · {{ aLaUne.tempsLecture }} min de lecture</p>
         </div>

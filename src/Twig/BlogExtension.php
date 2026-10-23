@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use App\Repository\ArticleRepository;
+use App\Service\Blog\Typographie;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -23,6 +24,7 @@ class BlogExtension extends AbstractExtension
         return [
             new TwigFilter('date_fr', [$this, 'dateFr']),
             new TwigFilter('surligner', [$this, 'surligner'], ['is_safe' => ['html']]),
+            new TwigFilter('typo', [Typographie::class, 'espacesInsecables']),
         ];
     }
 

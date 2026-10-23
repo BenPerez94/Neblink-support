@@ -31,6 +31,13 @@ class ContentProcessor
         );
         $body = $document->body;
 
+        // Espaces insécables avant la ponctuation, sauf dans le code
+        $xpath = new \Dom\XPath($document);
+        $xpath->registerNamespace('h', 'http://www.w3.org/1999/xhtml');
+        foreach ($xpath->query('//h:body//text()[not(ancestor::h:code) and not(ancestor::h:pre)]') as $texte) {
+            $texte->textContent = Typographie::espacesInsecables($texte->textContent);
+        }
+
         $slugger = new AsciiSlugger('fr');
         $sommaire = [];
         $idsUtilises = [];

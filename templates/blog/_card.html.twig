@@ -6,9 +6,9 @@
         <p class="text-xs text-slate-400 mb-2">
             {% if article.category %}<span class="text-sage-dark font-medium">{{ article.category.nom }}</span> · {% endif %}{{ article.tempsLecture }} min
         </p>
-        <h3 class="font-heading font-medium text-base text-slate-800 leading-snug mb-2 group-hover:text-sage-dark transition">{{ article.titre|surligner(recherche|default(null)) }}</h3>
+        <h3 class="font-heading font-medium text-base text-slate-800 leading-snug mb-2 group-hover:text-sage-dark transition">{{ article.titre|typo|surligner(recherche|default(null)) }}</h3>
         {% if article.extrait %}
-            <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 mb-4">{{ article.extrait|surligner(recherche|default(null)) }}</p>
+            <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 mb-4">{{ article.extrait|typo|surligner(recherche|default(null)) }}</p>
         {% endif %}
         <p class="mt-auto text-xs text-slate-400">{{ article.datePublication|date_fr }}</p>
     </div>
