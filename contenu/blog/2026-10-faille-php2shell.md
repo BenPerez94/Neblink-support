@@ -3,6 +3,8 @@ titre: "Faille PHP2Shell : votre site internet est-il concerné ?"
 extrait: "Fin octobre 2026, deux failles critiques dans PHP ont poussé des sites publics à se mettre en maintenance. Ce qui s'est passé, comment savoir si votre site est concerné et quoi faire."
 categorie: Actualités
 tags: [php, sécurité, site web, hébergement]
+couverture: images/2026-10-faille-php2shell.jpg
+couverture_alt: "Lignes de code informatique affichées sur un écran"
 meta_titre: "Faille PHP2Shell : votre site est-il concerné ? Ce qu'il faut faire"
 meta_description: "Deux failles critiques dans PHP (octobre 2026) permettent de prendre le contrôle d'un serveur. Comment vérifier votre site et quoi faire selon votre hébergement."
 ---
