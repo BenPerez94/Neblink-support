@@ -74,7 +74,7 @@
             {# Couverture fondue dans le bandeau : moitié droite sur ordinateur, fond voilé sur mobile #}
             <div class="absolute inset-y-0 right-0 w-full md:w-[58%]">
                 {% include 'blog/_cover.html.twig' with {article: article, classes: 'w-full h-full', eager: true} only %}
-                <div class="absolute inset-0 bg-sage-dark/85 md:bg-transparent md:bg-linear-to-r md:from-sage-dark md:via-sage-dark/50 md:to-sage-dark/5"></div>
+                <div class="absolute inset-0 bg-sage-dark/85 md:bg-transparent md:bg-linear-to-r md:from-sage-dark md:from-10% md:via-sage-dark/70 md:via-45% md:to-sage-dark/10"></div>
             </div>
         {% else %}
             <svg class="absolute -top-16 -right-20 md:right-[8%] opacity-10 pointer-events-none" width="280" height="280" viewBox="0 0 220 220" fill="none">
@@ -96,7 +96,7 @@
                 <a href="{{ path('blog_category', {slug: article.category.slug}) }}" class="inline-block bg-white/20 border border-white/30 rounded-full px-3 py-1 text-xs text-white mb-4 hover:bg-white/30 transition">{{ article.category.nom }}</a>
             {% endif %}
 
-            <h1 class="font-heading font-medium text-2xl md:text-4xl text-white leading-tight mb-5 {{ aCouverture ? 'md:max-w-[50%]' : 'max-w-4xl' }}">{{ article.titre|typo }}</h1>
+            <h1 class="font-heading font-medium text-2xl md:text-4xl text-white leading-tight mb-5 {{ aCouverture ? 'md:max-w-[65%]' : 'max-w-4xl' }}">{{ article.titre|typo }}</h1>
 
             <div class="flex items-center gap-3 text-sm text-white/80">
                 <img src="{{ asset('images/profile.jpg') }}" alt="" class="w-8 h-8 rounded-full object-cover ring-2 ring-white/40">
