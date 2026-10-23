@@ -1,0 +1,76 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Importer un article - Admin Neblink{% endblock %}
+
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Blog', path: path('admin_blog')},
+        {label: 'Importer un article'}
+    ]) }}
+{% endblock %}
+
+{% block admin_content %}
+
+    {% set fileClass = 'w-full text-sm text-slate-500 bg-[#faf9f6] border border-slate-200 rounded-xl px-3 py-2.5 file:mr-3 file:rounded-lg file:border-0 file:bg-sage-dark/10 file:px-3 file:py-2 file:text-xs file:font-medium file:text-sage-dark file:cursor-pointer cursor-pointer' %}
+
+    <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Blog</p>
+    <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 mb-6">Importer un article</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-5 items-start">
+
+        <div class="bg-white rounded-2xl p-6 md:p-8">
+            <p class="text-sm text-slate-500 leading-relaxed mb-6">
+                L'article est créé en <strong class="text-slate-700">brouillon</strong> à partir du fichier Markdown :
+                titre, adresse, extrait, catégorie, tags, référencement et contenu. Vous pourrez ensuite le relire,
+                le retoucher dans l'éditeur et le publier.
+            </p>
+
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-5">
+                    <label for="fichier" class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Fichier de l'article (.md)</label>
+                    <input type="file" id="fichier" name="fichier" accept=".md,.markdown,.txt,text/markdown,text/plain" required class="{{ fileClass }}">
+                </div>
+
+                <div class="mb-6">
+                    <label for="couverture" class="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Image de couverture (optionnel)</label>
+                    <input type="file" id="couverture" name="couverture" accept="image/jpeg,image/png,image/webp" class="{{ fileClass }}">
+                    <p class="text-xs text-slate-400 mt-1.5">JPG, PNG ou WebP, 5 Mo maximum, idéalement 1200 × 630. Vous pourrez aussi l'ajouter après l'import.</p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button type="submit" class="flex items-center gap-1.5 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-5 py-3 cursor-pointer hover:opacity-90 transition">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        Importer en brouillon
+                    </button>
+                    <a href="{{ path('admin_blog') }}" class="text-sm text-slate-500 hover:text-slate-700 px-3 py-3">Annuler</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6">
+            <p class="font-heading font-medium text-sm text-slate-800 mb-3">Format du fichier</p>
+            <p class="text-xs text-slate-500 leading-relaxed mb-3">Le fichier commence par un en-tête entre deux lignes <code class="bg-slate-100 rounded px-1">---</code>. Seul le titre est obligatoire.</p>
+            <pre class="bg-[#1f2b26] text-slate-200 text-[11px] leading-relaxed rounded-xl p-4 overflow-x-auto">---
+titre: "Le titre de l'article"
+slug: adresse-de-l-article
+extrait: "Une ou deux phrases."
+categorie: Sécurité
+tags: [windows, sauvegarde]
+couverture_alt: "Description de la photo"
+meta_titre: "Titre pour Google"
+meta_description: "Description pour Google"
+---
+
+Le texte en Markdown...
+
+## Un titre de section
+
+&gt; [!ASTUCE]
+&gt; Un encart astuce.</pre>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Si un article existe déjà à la même adresse, l'import est refusé : changez le <code class="bg-slate-100 rounded px-1">slug</code> ou supprimez l'ancien article.</p>
+        </div>
+    </div>
+
+{% endblock %}

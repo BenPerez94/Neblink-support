@@ -35,10 +35,14 @@
             <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Admin</p>
             <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">Blog</h1>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             <a href="{{ path('admin_blog_taxonomies') }}" class="flex items-center gap-1.5 bg-white text-slate-600 text-sm rounded-xl px-4 py-2.5 shadow-sm hover:text-sage-dark transition">
                 <i data-lucide="tags" class="w-4 h-4"></i>
                 Catégories et tags
+            </a>
+            <a href="{{ path('admin_blog_import') }}" class="flex items-center gap-1.5 bg-white text-slate-600 text-sm rounded-xl px-4 py-2.5 shadow-sm hover:text-sage-dark transition">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Importer
             </a>
             <a href="{{ path('admin_blog_new') }}" class="flex items-center gap-1.5 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-4 py-2.5 hover:opacity-90 transition">
                 <i data-lucide="plus" class="w-4 h-4"></i>
@@ -133,10 +137,16 @@
             {% else %}
                 <p class="font-heading font-medium text-slate-700 mb-1">Écrivez votre premier article</p>
                 <p class="text-sm text-slate-400 mb-5">Il restera en brouillon tant que vous ne le publiez pas.</p>
-                <a href="{{ path('admin_blog_new') }}" class="inline-flex items-center gap-1.5 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-4 py-2.5 hover:opacity-90 transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    Nouvel article
-                </a>
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                    <a href="{{ path('admin_blog_new') }}" class="inline-flex items-center gap-1.5 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-4 py-2.5 hover:opacity-90 transition">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Nouvel article
+                    </a>
+                    <a href="{{ path('admin_blog_import') }}" class="inline-flex items-center gap-1.5 bg-[#faf9f6] border border-slate-200 text-slate-600 text-sm rounded-xl px-4 py-2.5 hover:text-sage-dark transition">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        Importer un fichier
+                    </a>
+                </div>
             {% endif %}
         </div>
     {% else %}

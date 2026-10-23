@@ -8,7 +8,9 @@ use App\Entity\Tag;
 use App\Repository\ArticleRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\TagRepository;
+use App\Service\Blog\ArticleImporter;
 use App\Service\Blog\BlogManager;
+use App\Service\Blog\ImportException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -26,6 +28,7 @@ class BlogController extends AbstractController
 {
     private const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     private const IMAGE_MAX_SIZE = 5 * 1024 * 1024;
+    private const MARKDOWN_MAX_SIZE = 1024 * 1024;
 
     public function __construct(private BlogManager $blogManager)
     {
@@ -81,6 +84,38 @@ class BlogController extends AbstractController
         }
 
         return $this->renderForm($article, $categoryRepository, $tagRepository, $request);
+    }
+
+    /**
+     * Crée un article en brouillon à partir d'un fichier Markdown (même format que la commande app:blog:import).
+     */
+    #[Route('/importer', name: 'admin_blog_import', methods: ['GET', 'POST'])]
+    public function import(Request $request, ArticleImporter $importer): Response
+    {
+        if ($request->isMethod('POST')) {
+            $fichier = $request->files->get('fichier');
+            $couverture = $request->files->get('couverture');
+
+            $erreur = $this->validateMarkdown($fichier) ?? ($couverture !== null ? $this->validateImage($couverture) : null);
+
+            if ($erreur === null) {
+                try {
+                    $resultat = $importer->importer((string) file_get_contents($fichier->getPathname()), $couverture);
+
+                    $this->addFlash('success', trim('Article importé en brouillon. ' . implode(' ', $resultat->avertissements)));
+
+                    return $this->redirectToRoute('admin_blog_edit', ['id' => $resultat->article->getId()]);
+                } catch (ImportException $e) {
+                    $erreur = $e->getMessage();
+                }
+            }
+
+            $this->addFlash('error', $erreur);
+
+            return $this->render('admin/blog/import.html.twig', [], new Response(status: Response::HTTP_UNPROCESSABLE_ENTITY));
+        }
+
+        return $this->render('admin/blog/import.html.twig');
     }
 
     #[Route('/{id}/modifier', name: 'admin_blog_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -286,6 +321,27 @@ class BlogController extends AbstractController
         $article->setUpdatedAt(new \DateTimeImmutable('now', $tz));
 
         return $errors;
+    }
+
+    private function validateMarkdown(?UploadedFile $file): ?string
+    {
+        if ($file === null) {
+            return 'Choisissez le fichier .md de l\'article.';
+        }
+        if (!$file->isValid()) {
+            return 'L\'envoi du fichier a échoué.';
+        }
+        if (!in_array(strtolower($file->getClientOriginalExtension()), ['md', 'markdown', 'txt'], true)) {
+            return 'Le fichier doit être un fichier Markdown (.md).';
+        }
+        if ($file->getSize() > self::MARKDOWN_MAX_SIZE) {
+            return 'Le fichier ne doit pas dépasser 1 Mo.';
+        }
+        if (!mb_check_encoding((string) file_get_contents($file->getPathname()), 'UTF-8')) {
+            return 'Le fichier doit être enregistré en UTF-8.';
+        }
+
+        return null;
     }
 
     private function validateImage(?UploadedFile $file): ?string
