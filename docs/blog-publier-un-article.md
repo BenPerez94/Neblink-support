@@ -1,11 +1,15 @@
 # Publier un nouvel article
 
 Tout se fait dans l'**admin en ligne** : pas besoin de Git, de SSH ni du site en local.
-Ce dossier sert d'archive aux fichiers `.md` des articles.
+Les articles ne sont pas stockés dans ce dépôt : une fois importés, ils vivent dans la base
+de données (et leurs images dans `public/uploads/blog`).
 
-## 1. Préparer le fichier
+## 1. Récupérer le fichier
 
-L'article est un fichier `.md` qui commence par un en-tête entre deux lignes `---` :
+Claude rédige l'article et l'envoie sous forme de fichier `.md` (avec la photo si besoin).
+L'enregistrer sur le PC, par exemple dans `Documents\Neblink\Articles\` : ça sert aussi d'archive.
+
+Le fichier commence par un en-tête entre deux lignes `---` :
 
 ```markdown
 ---
@@ -55,8 +59,10 @@ L'article apparaît alors sur `/blog`, dans le sitemap et dans le flux RSS.
 La même importation existe en ligne de commande, utile en local pour tester un fichier :
 
 ```bash
-php bin/console app:blog:import contenu/blog/fichier.md
+php bin/console app:blog:import chemin/vers/fichier.md
 ```
+
+Un exemple de fichier complet se trouve dans `tests/fixtures/blog/article-exemple.md`.
 
 Avec la commande, l'en-tête accepte aussi `couverture: images/photo.jpg` (chemin relatif au
 fichier `.md`), et `--update` met à jour un article existant de même adresse.
