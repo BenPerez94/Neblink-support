@@ -29,7 +29,7 @@ class LoginControllerTest extends WebTestCase
         /** @var UserPasswordHasherInterface $passwordHasher */
         $passwordHasher = $container->get('security.user_password_hasher');
 
-        $user = (new User())->setEmail('email@example.com');
+        $user = (new User())->setEmail('email@example.com')->setRoles(['ROLE_ADMIN']);
         $user->setPassword($passwordHasher->hashPassword($user, 'password'));
 
         $em->persist($user);
@@ -42,7 +42,7 @@ class LoginControllerTest extends WebTestCase
         $this->client->request('GET', '/login');
         self::assertResponseIsSuccessful();
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm('Se connecter', [
             '_username' => 'doesNotExist@example.com',
             '_password' => 'password',
         ]);
@@ -51,13 +51,13 @@ class LoginControllerTest extends WebTestCase
         $this->client->followRedirect();
 
         // Ensure we do not reveal if the user exists or not.
-        self::assertSelectorTextContains('.alert-danger', 'Invalid credentials.');
+        self::assertSelectorTextContains('.bg-red-50', 'Identifiants incorrects.');
 
         // Denied - Can't login with invalid password.
         $this->client->request('GET', '/login');
         self::assertResponseIsSuccessful();
 
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm('Se connecter', [
             '_username' => 'email@example.com',
             '_password' => 'bad-password',
         ]);
@@ -66,17 +66,18 @@ class LoginControllerTest extends WebTestCase
         $this->client->followRedirect();
 
         // Ensure we do not reveal the user exists but the password is wrong.
-        self::assertSelectorTextContains('.alert-danger', 'Invalid credentials.');
+        self::assertSelectorTextContains('.bg-red-50', 'Identifiants incorrects.');
 
         // Success - Login with valid credentials is allowed.
-        $this->client->submitForm('Sign in', [
+        $this->client->submitForm('Se connecter', [
             '_username' => 'email@example.com',
             '_password' => 'password',
         ]);
 
-        self::assertResponseRedirects('/');
+        self::assertResponseRedirects('/admin');
         $this->client->followRedirect();
 
-        self::assertSelectorNotExists('.alert-danger');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('.bg-red-50');
     }
 }
