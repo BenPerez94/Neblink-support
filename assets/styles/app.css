@@ -60,7 +60,7 @@
 /* ---------- Blog : contenu des articles (page publique et éditeur admin) ---------- */
 .blog-content {
     color: #334155;
-    font-size: 1.0625rem;
+    font-size: 1rem;
     line-height: 1.8;
     overflow-wrap: break-word;
 }
