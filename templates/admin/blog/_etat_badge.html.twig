@@ -1,0 +1,7 @@
+{% set etat = article.etat %}
+<span class="text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap
+    {{ etat == 'brouillon' ? 'bg-slate-100 text-slate-600' : '' }}
+    {{ etat == 'programme' ? 'bg-amber-100 text-amber-700' : '' }}
+    {{ etat == 'publie' ? 'bg-green-100 text-green-700' : '' }}">
+    {{ {brouillon: 'Brouillon', programme: 'Programmé', publie: 'Publié'}[etat] }}
+</span>

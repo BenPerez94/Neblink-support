@@ -1,0 +1,223 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% set isNew = article.id is null %}
+
+{% block title %}{{ isNew ? 'Nouvel article' : 'Modifier ' ~ article.titre }} - Admin Neblink{% endblock %}
+
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Blog', path: path('admin_blog')},
+        {label: isNew ? 'Nouvel article' : article.titre}
+    ]) }}
+{% endblock %}
+
+{% block admin_content %}
+
+    {% set inputClass = 'w-full bg-[#faf9f6] border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-sage-dark transition' %}
+    {% set labelClass = 'block text-xs font-medium text-slate-500 uppercase tracking-wide mb-2' %}
+
+    <form method="post" enctype="multipart/form-data" data-controller="blog-form">
+
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+            <div>
+                <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">{{ isNew ? 'Nouvel article' : 'Modifier l\'article' }}</p>
+                <div class="flex items-center gap-3">
+                    <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">{{ isNew ? 'Rédaction' : article.titre }}</h1>
+                    {% if not isNew %}{% include 'admin/blog/_etat_badge.html.twig' %}{% endif %}
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="submit" name="action" value="apercu" class="flex items-center gap-1.5 bg-white text-slate-600 text-sm rounded-xl px-4 py-2.5 shadow-sm hover:text-sage-dark cursor-pointer transition">
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                    Enregistrer et voir
+                </button>
+                <button type="submit" name="action" value="enregistrer" class="flex items-center gap-1.5 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-5 py-2.5 cursor-pointer hover:opacity-90 transition">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
+
+            {# ---------- Colonne principale ---------- #}
+            <div class="flex flex-col gap-5 min-w-0">
+                <div class="bg-white rounded-2xl p-6">
+                    <div class="mb-4">
+                        <label for="titre" class="{{ labelClass }}">Titre</label>
+                        <input type="text" id="titre" name="titre" required value="{{ article.titre }}"
+                            data-blog-form-target="titre" data-action="input->blog-form#updateSlugPlaceholder"
+                            class="{{ inputClass }} font-heading text-base">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="slug" class="{{ labelClass }}">Adresse de l'article</label>
+                        <div class="flex items-center bg-[#faf9f6] border border-slate-200 rounded-xl focus-within:border-sage-dark transition">
+                            <span class="pl-4 text-sm text-slate-400 whitespace-nowrap">/blog/</span>
+                            <input type="text" id="slug" name="slug" value="{{ article.slug }}" data-blog-form-target="slug"
+                                placeholder="genere-depuis-le-titre"
+                                class="w-full bg-transparent px-1 py-3 text-sm text-slate-800 focus:outline-none">
+                        </div>
+                        {% if not isNew and article.etat == 'publie' %}
+                            <p class="text-xs text-amber-600 mt-1.5">Article publié : changer l'adresse casse les liens déjà partagés.</p>
+                        {% else %}
+                            <p class="text-xs text-slate-400 mt-1.5">Laissez vide pour la générer à partir du titre.</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="extrait" class="{{ labelClass }}">Extrait</label>
+                        <textarea id="extrait" name="extrait" rows="3"
+                            class="{{ inputClass }} resize-none">{{ article.extrait }}</textarea>
+                        <p class="text-xs text-slate-400 mt-1.5">Résumé affiché sur les cartes du blog et utilisé comme description par défaut.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl overflow-hidden"
+                    data-controller="blog-editor"
+                    data-blog-editor-upload-url-value="{{ path('admin_blog_upload_image') }}">
+                    <div class="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-slate-100 sticky top-14 md:top-0 bg-white z-10" data-blog-editor-target="toolbar">
+                        {% set tools = [
+                            {cmd: 'h2', icon: 'heading-2', label: 'Titre de section'},
+                            {cmd: 'h3', icon: 'heading-3', label: 'Sous-titre'},
+                            null,
+                            {cmd: 'bold', icon: 'bold', label: 'Gras'},
+                            {cmd: 'italic', icon: 'italic', label: 'Italique'},
+                            {cmd: 'underline', icon: 'underline', label: 'Souligné'},
+                            {cmd: 'link', icon: 'link', label: 'Lien'},
+                            null,
+                            {cmd: 'bulletList', icon: 'list', label: 'Liste à puces'},
+                            {cmd: 'orderedList', icon: 'list-ordered', label: 'Liste numérotée'},
+                            {cmd: 'blockquote', icon: 'quote', label: 'Citation'},
+                            {cmd: 'callout', icon: 'lightbulb', label: 'Encart astuce'},
+                            {cmd: 'codeBlock', icon: 'code', label: 'Bloc de code'},
+                            null,
+                            {cmd: 'image', icon: 'image-plus', label: 'Insérer une image'},
+                            {cmd: 'hr', icon: 'minus', label: 'Séparateur'},
+                            null,
+                            {cmd: 'undo', icon: 'undo', label: 'Annuler'},
+                            {cmd: 'redo', icon: 'redo', label: 'Rétablir'},
+                        ] %}
+                        {% for tool in tools %}
+                            {% if tool is null %}
+                                <span class="w-px h-5 bg-slate-200 mx-1"></span>
+                            {% else %}
+                                <button type="button" title="{{ tool.label }}" aria-label="{{ tool.label }}"
+                                    data-action="blog-editor#run" data-command="{{ tool.cmd }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-[#faf9f6] hover:text-sage-dark cursor-pointer transition">
+                                    <i data-lucide="{{ tool.icon }}" class="w-4 h-4"></i>
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ml-auto text-xs text-slate-400 pr-1" data-blog-editor-target="status"></span>
+                    </div>
+
+                    <div data-blog-editor-target="editor" class="blog-content blog-editor px-6 md:px-10 py-8 min-h-[480px]"></div>
+                    <textarea name="contenu" data-blog-editor-target="input" class="hidden">{{ article.contenu }}</textarea>
+                    <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden"
+                        data-blog-editor-target="file" data-action="change->blog-editor#upload">
+                </div>
+            </div>
+
+            {# ---------- Colonne latérale ---------- #}
+            <div class="flex flex-col gap-5 xl:sticky xl:top-6">
+
+                <div class="bg-white rounded-2xl p-5">
+                    <p class="font-heading font-medium text-sm text-slate-800 mb-3">Publication</p>
+                    <div class="grid grid-cols-2 gap-1 bg-[#faf9f6] rounded-xl p-1 mb-3">
+                        {% for value, label in {brouillon: 'Brouillon', publie: 'Publier'} %}
+                            <label class="cursor-pointer">
+                                <input type="radio" name="statut" value="{{ value }}" class="peer sr-only" {{ article.statut == value ? 'checked' }}>
+                                <span class="block text-center text-sm rounded-lg py-2 text-slate-500 peer-checked:bg-white peer-checked:text-sage-dark peer-checked:font-medium peer-checked:shadow-sm transition">{{ label }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <label for="datePublication" class="{{ labelClass }}">Date de publication</label>
+                    <input type="datetime-local" id="datePublication" name="datePublication"
+                        value="{{ article.datePublication ? article.datePublication|date('Y-m-d\\TH:i', 'Europe/Paris') }}"
+                        class="{{ inputClass }}">
+                    <p class="text-xs text-slate-400 mt-1.5">Vide : maintenant. Une date future programme l'article.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5">
+                    <p class="font-heading font-medium text-sm text-slate-800 mb-3">Classement</p>
+                    <label for="categoryId" class="{{ labelClass }}">Catégorie</label>
+                    <select id="categoryId" name="categoryId" class="{{ inputClass }} mb-4 cursor-pointer">
+                        <option value="">Sans catégorie</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {{ article.category and article.category.id == category.id ? 'selected' }}>{{ category.nom }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if categories is empty %}
+                        <p class="text-xs text-slate-400 -mt-2 mb-4"><a href="{{ path('admin_blog_taxonomies') }}" class="text-sage-dark underline">Créer une catégorie</a></p>
+                    {% endif %}
+
+                    <label for="tags" class="{{ labelClass }}">Tags</label>
+                    <input type="text" id="tags" name="tags" list="tags-existants" autocomplete="off"
+                        value="{{ article.tags|map(t => t.nom)|join(', ') }}"
+                        placeholder="windows, sauvegarde"
+                        class="{{ inputClass }}">
+                    <datalist id="tags-existants">
+                        {% for tag in allTags %}<option value="{{ tag.nom }}">{% endfor %}
+                    </datalist>
+                    <p class="text-xs text-slate-400 mt-1.5">Séparés par des virgules, 3 à 5 maximum.</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5">
+                    <p class="font-heading font-medium text-sm text-slate-800 mb-3">Image de couverture</p>
+                    <div class="aspect-[1200/630] rounded-xl overflow-hidden bg-[#faf9f6] border border-dashed border-slate-200 mb-3 flex items-center justify-center">
+                        <img data-blog-form-target="coverPreview"
+                            src="{{ article.couverture ? vich_uploader_asset(article, 'couvertureFile') : '' }}"
+                            alt="" class="w-full h-full object-cover {{ article.couverture ? '' : 'hidden' }}">
+                        <i data-lucide="image" class="w-6 h-6 text-slate-300 {{ article.couverture ? 'hidden' : '' }}" data-blog-form-target="coverPlaceholder"></i>
+                    </div>
+                    <input type="file" name="couverture" accept="image/jpeg,image/png,image/webp"
+                        data-action="change->blog-form#previewCover"
+                        class="w-full text-xs text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-sage-dark/10 file:px-3 file:py-2 file:text-xs file:font-medium file:text-sage-dark file:cursor-pointer mb-3">
+                    {% if article.couverture %}
+                        <label class="flex items-center gap-2 text-xs text-slate-500 mb-3 cursor-pointer">
+                            <input type="checkbox" name="supprimerCouverture" value="1" class="accent-sage-dark">
+                            Retirer l'image actuelle
+                        </label>
+                    {% endif %}
+                    <label for="couvertureAlt" class="{{ labelClass }}">Texte alternatif</label>
+                    <input type="text" id="couvertureAlt" name="couvertureAlt" value="{{ article.couvertureAlt }}"
+                        placeholder="Décrivez l'image en une phrase"
+                        class="{{ inputClass }}">
+                    <p class="text-xs text-slate-400 mt-1.5">Idéalement 1200 × 630 px (format des partages sur les réseaux).</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-5">
+                    <p class="font-heading font-medium text-sm text-slate-800 mb-3">Référencement</p>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="metaTitre" class="text-xs font-medium text-slate-500 uppercase tracking-wide">Titre SEO</label>
+                        <span class="text-xs text-slate-400" data-blog-form-target="metaTitreCount"></span>
+                    </div>
+                    <input type="text" id="metaTitre" name="metaTitre" value="{{ article.metaTitre }}" maxlength="255"
+                        placeholder="Par défaut : le titre de l'article"
+                        data-blog-form-target="metaTitre" data-action="input->blog-form#updateCounters"
+                        class="{{ inputClass }} mb-4">
+
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="metaDescription" class="text-xs font-medium text-slate-500 uppercase tracking-wide">Description SEO</label>
+                        <span class="text-xs text-slate-400" data-blog-form-target="metaDescriptionCount"></span>
+                    </div>
+                    <textarea id="metaDescription" name="metaDescription" rows="3" maxlength="320"
+                        placeholder="Par défaut : l'extrait"
+                        data-blog-form-target="metaDescription" data-action="input->blog-form#updateCounters"
+                        class="{{ inputClass }} resize-none">{{ article.metaDescription }}</textarea>
+                    <p class="text-xs text-slate-400 mt-1.5">Idéal : 60 caractères pour le titre, 155 pour la description.</p>
+                </div>
+
+                {% if not isNew %}
+                    <p class="text-xs text-slate-400 px-1">
+                        Créé le {{ article.createdAt|date('d/m/Y à H:i') }} · modifié le {{ article.updatedAt|date('d/m/Y à H:i') }} · {{ article.tempsLecture }} min de lecture
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

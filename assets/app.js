@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft  } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft } from 'lucide';
 
 document.addEventListener('turbo:load', () => {
     createIcons({
@@ -61,7 +61,26 @@ document.addEventListener('turbo:load', () => {
             Flag,
             Pencil,
             ListChecks,
-            AlignLeft
+            AlignLeft,
+            Heading2,
+            Heading3,
+            Bold,
+            Italic,
+            Underline,
+            Link,
+            List,
+            ListOrdered,
+            Quote,
+            Image,
+            ImagePlus,
+            Minus,
+            Undo,
+            Redo,
+            Newspaper,
+            Tag,
+            Tags,
+            Search,
+            ArrowLeft
         }
     });
 });
@@ -434,6 +453,82 @@ function initAdminMobileSidebar() {
 
 
 
+function initBlogReadingProgress() {
+    const bar = document.querySelector('[data-reading-progress]');
+    const article = document.querySelector('[data-article-body]');
+    if (!bar || !article) return;
+
+    const update = () => {
+        const rect = article.getBoundingClientRect();
+        const total = rect.height - window.innerHeight;
+        const progress = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 1;
+        bar.style.width = `${progress * 100}%`;
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    document.addEventListener('turbo:before-visit', () => window.removeEventListener('scroll', update), { once: true });
+    update();
+}
+
+function initBlogToc() {
+    const links = document.querySelectorAll('[data-toc-link]');
+    if (!links.length) return;
+
+    const linkById = new Map();
+    links.forEach(link => linkById.set(decodeURIComponent(link.hash.slice(1)), link));
+
+    const setActive = (id) => {
+        links.forEach(link => link.classList.toggle('is-active', link === linkById.get(id)));
+    };
+
+    // La section active est le dernier titre passé sous le tiers haut de l'écran
+    const headings = [...document.querySelectorAll('.blog-content h2[id], .blog-content h3[id]')];
+    let ticking = false;
+    const update = () => {
+        ticking = false;
+        const limit = window.innerHeight * 0.3;
+        const passed = headings.filter(h => h.getBoundingClientRect().top < limit);
+        setActive((passed.at(-1) ?? headings[0])?.id);
+    };
+    const onScroll = () => {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+        }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('turbo:before-visit', () => window.removeEventListener('scroll', onScroll), { once: true });
+    update();
+}
+
+function initCopyLinks() {
+    document.querySelectorAll('[data-copy-link]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(btn.dataset.copyLink);
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-end',
+                    icon: 'success',
+                    title: 'Lien copié',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    background: '#ffffff',
+                    color: '#1f2b26',
+                    iconColor: '#3f6b56',
+                    customClass: { popup: 'neblink-toast' },
+                });
+            } catch {
+                window.prompt('Copiez le lien :', btn.dataset.copyLink);
+            }
+        });
+    });
+}
+
+document.addEventListener('turbo:load', initBlogReadingProgress);
+document.addEventListener('turbo:load', initBlogToc);
+document.addEventListener('turbo:load', initCopyLinks);
 document.addEventListener('turbo:load', initNavScript);
 document.addEventListener('turbo:load', initScrollAnimations);
 document.addEventListener('turbo:load', initFlashToasts);

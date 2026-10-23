@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{% set base = 'https://www.neblink.fr' %}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Blog Neblink</title>
+        <link>{{ base }}{{ path('blog_index') }}</link>
+        <atom:link href="{{ base }}{{ path('blog_rss') }}" rel="self" type="application/rss+xml"/>
+        <description>Conseils pratiques en informatique et en web, sans jargon.</description>
+        <language>fr-FR</language>
+        {% if articles is not empty %}<lastBuildDate>{{ articles|first.datePublication|date('r') }}</lastBuildDate>{% endif %}
+        {% for article in articles %}
+        <item>
+            <title>{{ article.titre }}</title>
+            <link>{{ base }}{{ path('blog_show', {slug: article.slug}) }}</link>
+            <guid isPermaLink="true">{{ base }}{{ path('blog_show', {slug: article.slug}) }}</guid>
+            <pubDate>{{ article.datePublication|date('r') }}</pubDate>
+            {% if article.category %}<category>{{ article.category.nom }}</category>{% endif %}
+            <description>{{ article.extrait ?: article.contenu|striptags|slice(0, 300) ~ '…' }}</description>
+        </item>
+        {% endfor %}
+    </channel>
+</rss>

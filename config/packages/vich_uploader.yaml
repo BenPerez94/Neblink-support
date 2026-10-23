@@ -9,6 +9,10 @@ vich_uploader:
             uri_prefix: /uploads/interventions
             upload_destination: '%kernel.project_dir%/public/uploads/interventions'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+        blog_couvertures:
+            uri_prefix: /uploads/blog
+            upload_destination: '%kernel.project_dir%/public/uploads/blog'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
 
     #mappings:
     #    products:

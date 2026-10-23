@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{% set base = 'https://www.neblink.fr' %}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    <url>
+        <loc>{{ base }}/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <url>
+        <loc>{{ base }}{{ path('app_dev_web') }}</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>{{ base }}{{ path('app_about') }}</loc>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+    <url>
+        <loc>{{ base }}{{ path('app_contact') }}</loc>
+        <changefreq>yearly</changefreq>
+        <priority>0.6</priority>
+    </url>
+
+    <url>
+        <loc>{{ base }}{{ path('blog_index') }}</loc>
+        {% if articles is not empty %}<lastmod>{{ articles|first.datePublication|date('Y-m-d') }}</lastmod>{% endif %}
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+{% for category in categories %}
+
+    <url>
+        <loc>{{ base }}{{ path('blog_category', {slug: category.slug}) }}</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+{% endfor %}
+{% for article in articles %}
+
+    <url>
+        <loc>{{ base }}{{ path('blog_show', {slug: article.slug}) }}</loc>
+        <lastmod>{{ article.updatedAt|date('Y-m-d') }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+{% endfor %}
+
+</urlset>
