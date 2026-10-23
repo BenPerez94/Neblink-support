@@ -43,14 +43,37 @@ class ArticleRepository extends ServiceEntityRepository
         return array_slice(array_values(array_unique($utiles)), 0, 5);
     }
 
-    public function findLatestPublished(): ?Article
+    /**
+     * Article à la une : celui choisi dans l'admin s'il est publié, sinon le dernier publié.
+     */
+    public function findALaUne(): ?Article
     {
         return $this->createPublishedQueryBuilder()
             ->leftJoin('a.category', 'c')
             ->addSelect('c')
+            ->addSelect('CASE WHEN a.aLaUne = true THEN 0 ELSE 1 END AS HIDDEN priorite')
+            ->orderBy('priorite', 'ASC')
+            ->addOrderBy('a.datePublication', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /**
+     * Retire la mise à la une de tous les articles sauf celui donné.
+     */
+    public function retirerALaUneSauf(Article $article): void
+    {
+        $this->createQueryBuilder('a')
+            ->update()
+            ->set('a.aLaUne', ':non')
+            ->where('a.aLaUne = :oui')
+            ->andWhere('a.id != :id')
+            ->setParameter('non', false)
+            ->setParameter('oui', true)
+            ->setParameter('id', $article->getId())
+            ->getQuery()
+            ->execute();
     }
 
     /**

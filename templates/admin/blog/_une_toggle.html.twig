@@ -1,0 +1,10 @@
+{# Étoile « à la une » de la liste admin. Paramètres : article, taille (icône), bouton (zone cliquable) #}
+<form method="post" action="{{ path('admin_blog_toggle_une', {id: article.id}) }}">
+    <button type="submit"
+        title="{{ article.aLaUne ? 'Retirer de la une' : 'Mettre à la une' }}"
+        aria-label="{{ article.aLaUne ? 'Retirer de la une' : 'Mettre à la une' }}"
+        aria-pressed="{{ article.aLaUne ? 'true' : 'false' }}"
+        class="inline-flex items-center justify-center {{ bouton }} cursor-pointer transition {{ article.aLaUne ? 'text-amber-400 hover:text-amber-500' : 'text-slate-300 hover:text-amber-400' }}">
+        <i data-lucide="star" class="{{ taille }} {{ article.aLaUne ? 'fill-current' : '' }}"></i>
+    </button>
+</form>

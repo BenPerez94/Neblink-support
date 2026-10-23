@@ -58,7 +58,7 @@ class BlogController extends AbstractController
     }
 
     #[Route('/nouveau', name: 'admin_blog_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, CategoryRepository $categoryRepository, TagRepository $tagRepository, UploadHandler $uploadHandler): Response
+    public function new(Request $request, EntityManagerInterface $em, ArticleRepository $articleRepository, CategoryRepository $categoryRepository, TagRepository $tagRepository, UploadHandler $uploadHandler): Response
     {
         $article = new Article();
 
@@ -68,6 +68,7 @@ class BlogController extends AbstractController
             if (empty($errors)) {
                 $em->persist($article);
                 $em->flush();
+                $this->garderUnSeulALaUne($article, $articleRepository);
 
                 $this->addFlash('success', 'Article créé.');
 
@@ -119,13 +120,14 @@ class BlogController extends AbstractController
     }
 
     #[Route('/{id}/modifier', name: 'admin_blog_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(Article $article, Request $request, EntityManagerInterface $em, CategoryRepository $categoryRepository, TagRepository $tagRepository, UploadHandler $uploadHandler): Response
+    public function edit(Article $article, Request $request, EntityManagerInterface $em, ArticleRepository $articleRepository, CategoryRepository $categoryRepository, TagRepository $tagRepository, UploadHandler $uploadHandler): Response
     {
         if ($request->isMethod('POST')) {
             $errors = $this->handleForm($article, $request, $categoryRepository, $uploadHandler);
 
             if (empty($errors)) {
                 $em->flush();
+                $this->garderUnSeulALaUne($article, $articleRepository);
 
                 $this->addFlash('success', 'Article enregistré.');
 
@@ -143,6 +145,27 @@ class BlogController extends AbstractController
         }
 
         return $this->renderForm($article, $categoryRepository, $tagRepository, $request);
+    }
+
+    /**
+     * Étoile de la liste : met l'article à la une (et retire l'ancien) ou le retire.
+     */
+    #[Route('/{id}/une', name: 'admin_blog_toggle_une', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function toggleALaUne(Article $article, EntityManagerInterface $em, ArticleRepository $articleRepository): Response
+    {
+        $article->setALaUne(!$article->isALaUne());
+        $em->flush();
+        $this->garderUnSeulALaUne($article, $articleRepository);
+
+        if ($article->isALaUne()) {
+            $this->addFlash('success', $article->isPublie()
+                ? 'Article mis à la une.'
+                : 'Article mis à la une : il apparaîtra en tête du blog dès sa publication.');
+        } else {
+            $this->addFlash('success', 'Article retiré de la une : le dernier article publié le remplace.');
+        }
+
+        return $this->redirectToRoute('admin_blog');
     }
 
     #[Route('/{id}/supprimer', name: 'admin_blog_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -290,6 +313,8 @@ class BlogController extends AbstractController
             $article->setDatePublication(null);
         }
 
+        $article->setALaUne((bool) $data->get('aLaUne'));
+
         $categoryId = $data->get('categoryId');
         $article->setCategory($categoryId ? $categoryRepository->find((int) $categoryId) : null);
 
@@ -321,6 +346,13 @@ class BlogController extends AbstractController
         $article->setUpdatedAt(new \DateTimeImmutable('now', $tz));
 
         return $errors;
+    }
+
+    private function garderUnSeulALaUne(Article $article, ArticleRepository $articleRepository): void
+    {
+        if ($article->isALaUne()) {
+            $articleRepository->retirerALaUneSauf($article);
+        }
     }
 
     private function validateMarkdown(?UploadedFile $file): ?string

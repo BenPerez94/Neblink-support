@@ -163,6 +163,7 @@
                         · {{ article.datePublication ? article.datePublication|date('d/m/Y H:i') : 'Non daté' }}
                     </p>
                     <div class="flex items-center gap-1 -ml-1.5">
+                        {% include 'admin/blog/_une_toggle.html.twig' with {article: article, taille: 'w-3.5 h-3.5', bouton: 'w-7 h-7'} only %}
                         <a href="{{ path('blog_show', {slug: article.slug}) }}" target="_blank" title="Voir" class="w-7 h-7 flex items-center justify-center text-slate-300 hover:text-sage-dark transition">
                             <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                         </a>
@@ -207,6 +208,7 @@
                             <td class="px-5 py-3.5 text-slate-400 text-xs whitespace-nowrap">{{ article.updatedAt|date('d/m/Y H:i') }}</td>
                             <td class="px-5 py-3.5 whitespace-nowrap text-right">
                                 <div class="inline-flex items-center">
+                                    {% include 'admin/blog/_une_toggle.html.twig' with {article: article, taille: 'w-4 h-4', bouton: 'w-8 h-8'} only %}
                                     <a href="{{ path('blog_show', {slug: article.slug}) }}" target="_blank" title="{{ article.etat == 'publie' ? 'Voir sur le site' : 'Aperçu' }}" class="inline-flex items-center justify-center w-8 h-8 text-slate-300 hover:text-sage-dark transition">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>

@@ -52,6 +52,10 @@ class Article
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $datePublication = null;
 
+    /** Article mis en avant en tête du blog (un seul à la fois). */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $aLaUne = false;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $metaTitre = null;
 
@@ -214,6 +218,17 @@ class Article
         }
 
         return $this->isPublie() ? 'publie' : 'programme';
+    }
+
+    public function isALaUne(): bool
+    {
+        return $this->aLaUne;
+    }
+
+    public function setALaUne(bool $aLaUne): static
+    {
+        $this->aLaUne = $aLaUne;
+        return $this;
     }
 
     public function getMetaTitre(): ?string

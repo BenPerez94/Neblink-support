@@ -139,6 +139,13 @@
                         value="{{ article.datePublication ? article.datePublication|date('Y-m-d\\TH:i', 'Europe/Paris') }}"
                         class="{{ inputClass }}">
                     <p class="text-xs text-slate-400 mt-1.5">Vide : maintenant. Une date future programme l'article.</p>
+
+                    <label class="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 text-sm text-slate-700 cursor-pointer">
+                        <input type="checkbox" name="aLaUne" value="1" {{ article.aLaUne ? 'checked' }} class="w-4 h-4 accent-sage-dark cursor-pointer">
+                        <i data-lucide="star" class="w-4 h-4 text-amber-400"></i>
+                        Mettre à la une
+                    </label>
+                    <p class="text-xs text-slate-400 mt-1.5">Affiché en grand en tête du blog, à la place de l'article actuellement à la une.</p>
                 </div>
 
                 <div class="bg-white rounded-2xl p-5">

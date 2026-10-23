@@ -31,7 +31,7 @@ final class BlogController extends AbstractController
         $recherche = $this->recherche($request);
 
         // L'article à la une n'apparaît qu'en tête de la première page, hors recherche
-        $aLaUne = $recherche === '' ? $this->articleRepository->findLatestPublished() : null;
+        $aLaUne = $recherche === '' ? $this->articleRepository->findALaUne() : null;
 
         $articles = $this->articleRepository->findPublishedPaginated(
             $page,
