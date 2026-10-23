@@ -8,7 +8,7 @@
     {%- elseif tag -%}
         #{{ tag.nom }} - Blog Neblink{{ suffixePage }}
     {%- else -%}
-        Blog - Conseils informatique et web - Neblink{{ suffixePage }}
+        Blog - Conseils et actus informatique - Neblink{{ suffixePage }}
     {%- endif -%}
 {% endblock %}
 
@@ -18,7 +18,7 @@
     {%- elseif category -%}
         Articles et conseils sur le thème « {{ category.nom }} » par Neblink, dépannage informatique et développement web.
     {%- else -%}
-        Conseils pratiques en informatique et en web : dépannage, sécurité, sites internet. Des articles clairs, sans jargon, par Neblink.
+        Conseils pratiques et actualités informatiques : dépannage, sécurité, sites internet. Des articles clairs par Neblink.
     {%- endif -%}
 {% endblock %}
 
@@ -53,7 +53,7 @@
                 {%- elseif recherche -%}
                     Résultats pour « {{ recherche }} »
                 {%- else -%}
-                    Conseils informatique et web
+                    Conseils et actus informatique
                 {%- endif -%}
             </h1>
 
@@ -63,7 +63,7 @@
                 {%- elseif recherche -%}
                     {{ articles|length }} article{{ articles|length > 1 ? 's' }} trouvé{{ articles|length > 1 ? 's' }}.
                 {%- else -%}
-                    Des astuces concrètes pour garder un ordinateur en forme, se protéger en ligne et réussir son site, sans jargon.
+                    Astuces pratiques, nouveautés et alertes de sécurité pour garder votre ordinateur et votre site en forme.
                 {%- endif -%}
             </p>
         </div>

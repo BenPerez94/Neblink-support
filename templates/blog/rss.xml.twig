@@ -5,7 +5,7 @@
         <title>Blog Neblink</title>
         <link>{{ base }}{{ path('blog_index') }}</link>
         <atom:link href="{{ base }}{{ path('blog_rss') }}" rel="self" type="application/rss+xml"/>
-        <description>Conseils pratiques en informatique et en web, sans jargon.</description>
+        <description>Conseils pratiques et actualités informatiques.</description>
         <language>fr-FR</language>
         {% if articles is not empty %}<lastBuildDate>{{ articles|first.datePublication|date('r') }}</lastBuildDate>{% endif %}
         {% for article in articles %}

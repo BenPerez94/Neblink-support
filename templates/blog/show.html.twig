@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% set urlArticle = 'https://www.neblink.fr' ~ path('blog_show', {slug: article.slug}) %}
-{% set description = article.metaDescription ?: article.extrait ?: 'Un article du blog Neblink : conseils informatique et web, sans jargon.' %}
+{% set description = article.metaDescription ?: article.extrait ?: 'Un article du blog Neblink : conseils et actus informatique.' %}
 {% set imageArticle = article.couverture ? absolute_url(vich_uploader_asset(article, 'couvertureFile')) : absolute_url(asset('images/og-image.jpg')) %}
 {% set aCouverture = article.couverture is not empty %}
 
