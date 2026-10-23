@@ -28,7 +28,7 @@ final class BlogController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
-        $recherche = trim((string) $request->query->get('q', ''));
+        $recherche = $this->recherche($request);
 
         // L'article à la une n'apparaît qu'en tête de la première page, hors recherche
         $aLaUne = $recherche === '' ? $this->articleRepository->findLatestPublished() : null;
@@ -36,15 +36,14 @@ final class BlogController extends AbstractController
         $articles = $this->articleRepository->findPublishedPaginated(
             $page,
             self::PAR_PAGE,
-            search: $recherche !== '' ? $recherche : null,
+            search: $recherche,
             excludeId: $aLaUne?->getId(),
         );
 
-        return $this->renderListe($articles, $page, [
+        return $this->renderListe($articles, $page, $recherche, [
             'aLaUne' => $page === 1 ? $aLaUne : null,
-            'recherche' => $recherche,
             'route' => 'blog_index',
-            'routeParams' => $recherche !== '' ? ['q' => $recherche] : [],
+            'baseParams' => [],
         ]);
     }
 
@@ -63,14 +62,16 @@ final class BlogController extends AbstractController
     public function category(#[MapEntity(mapping: ['slug' => 'slug'])] Category $category, Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
+        $recherche = $this->recherche($request);
 
         return $this->renderListe(
-            $this->articleRepository->findPublishedPaginated($page, self::PAR_PAGE, category: $category),
+            $this->articleRepository->findPublishedPaginated($page, self::PAR_PAGE, category: $category, search: $recherche),
             $page,
+            $recherche,
             [
                 'category' => $category,
                 'route' => 'blog_category',
-                'routeParams' => ['slug' => $category->getSlug()],
+                'baseParams' => ['slug' => $category->getSlug()],
             ]
         );
     }
@@ -79,14 +80,16 @@ final class BlogController extends AbstractController
     public function tag(#[MapEntity(mapping: ['slug' => 'slug'])] Tag $tag, Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
+        $recherche = $this->recherche($request);
 
         return $this->renderListe(
-            $this->articleRepository->findPublishedPaginated($page, self::PAR_PAGE, tag: $tag),
+            $this->articleRepository->findPublishedPaginated($page, self::PAR_PAGE, tag: $tag, search: $recherche),
             $page,
+            $recherche,
             [
                 'tag' => $tag,
                 'route' => 'blog_tag',
-                'routeParams' => ['slug' => $tag->getSlug()],
+                'baseParams' => ['slug' => $tag->getSlug()],
             ]
         );
     }
@@ -114,7 +117,17 @@ final class BlogController extends AbstractController
         return $response;
     }
 
-    private function renderListe(iterable $articles, int $page, array $contexte): Response
+    /**
+     * Recherche saisie, limitée en longueur. Une seule lettre ne déclenche pas de recherche.
+     */
+    private function recherche(Request $request): string
+    {
+        $recherche = mb_substr(trim((string) $request->query->get('q', '')), 0, 100);
+
+        return ArticleRepository::motsRecherche($recherche) === [] ? '' : $recherche;
+    }
+
+    private function renderListe(iterable $articles, int $page, string $recherche, array $contexte): Response
     {
         $total = count($articles);
         $totalPages = max(1, (int) ceil($total / self::PAR_PAGE));
@@ -123,14 +136,19 @@ final class BlogController extends AbstractController
             throw $this->createNotFoundException();
         }
 
+        $baseParams = $contexte['baseParams'];
+
         return $this->render('blog/index.html.twig', $contexte + [
             'articles' => $articles,
+            'total' => $total,
             'page' => $page,
             'totalPages' => $totalPages,
+            'recherche' => $recherche,
+            // Paramètres des liens de pagination : la recherche en cours est conservée
+            'routeParams' => $recherche !== '' ? $baseParams + ['q' => $recherche] : $baseParams,
             'categories' => $this->categoryRepository->findBy([], ['nom' => 'ASC']),
             'compteParCategorie' => $this->articleRepository->countPublishedByCategory(),
             'aLaUne' => null,
-            'recherche' => '',
             'category' => null,
             'tag' => null,
         ]);

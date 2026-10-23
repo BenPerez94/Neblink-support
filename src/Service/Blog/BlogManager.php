@@ -48,6 +48,7 @@ class BlogManager
         $resultat = $this->contentProcessor->process($html);
 
         $article->setContenu($resultat['html']);
+        $article->setContenuTexte($resultat['texte']);
         $article->setSommaire($resultat['sommaire']);
         $article->setTempsLecture($resultat['tempsLecture']);
     }

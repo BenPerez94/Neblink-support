@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 
 import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft } from 'lucide';
 
-document.addEventListener('turbo:load', () => {
+function renderIcons() {
     createIcons({
         icons: {
             Wrench,
@@ -83,7 +83,11 @@ document.addEventListener('turbo:load', () => {
             ArrowLeft
         }
     });
-});
+}
+
+document.addEventListener('turbo:load', renderIcons);
+// Contenu rechargé dans un <turbo-frame> (recherche du blog)
+document.addEventListener('turbo:frame-render', renderIcons);
 
 function initNavScript() {
     const header = document.getElementById('site-header');

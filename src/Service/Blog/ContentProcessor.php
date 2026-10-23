@@ -18,7 +18,7 @@ class ContentProcessor
     }
 
     /**
-     * @return array{html: string, sommaire: list<array{niveau: int, id: string, texte: string}>, tempsLecture: int}
+     * @return array{html: string, texte: string, sommaire: list<array{niveau: int, id: string, texte: string}>, tempsLecture: int}
      */
     public function process(string $html): array
     {
@@ -89,6 +89,7 @@ class ContentProcessor
 
         return [
             'html' => $body->innerHTML,
+            'texte' => implode(' ', $mots),
             'sommaire' => $sommaire,
             'tempsLecture' => max(1, (int) round(count($mots) / self::MOTS_PAR_MINUTE)),
         ];

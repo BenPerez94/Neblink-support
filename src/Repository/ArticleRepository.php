@@ -30,6 +30,19 @@ class ArticleRepository extends ServiceEntityRepository
             ->orderBy($alias . '.datePublication', 'DESC');
     }
 
+    /**
+     * Mots utiles d'une recherche : au moins 2 caractères (ou un nombre), 5 mots maximum.
+     *
+     * @return string[]
+     */
+    public static function motsRecherche(?string $recherche): array
+    {
+        $mots = preg_split('/\s+/u', trim((string) $recherche), -1, PREG_SPLIT_NO_EMPTY);
+        $utiles = array_filter($mots, fn (string $mot) => mb_strlen($mot) >= 2 || ctype_digit($mot));
+
+        return array_slice(array_values(array_unique($utiles)), 0, 5);
+    }
+
     public function findLatestPublished(): ?Article
     {
         return $this->createPublishedQueryBuilder()
@@ -63,10 +76,10 @@ class ArticleRepository extends ServiceEntityRepository
             $qb->andWhere(':tag MEMBER OF a.tags')->setParameter('tag', $tag);
         }
 
-        if ($search !== null && $search !== '') {
-            $term = '%' . addcslashes($search, '%_\\') . '%';
-            $qb->andWhere('a.titre LIKE :search OR a.extrait LIKE :search OR a.contenu LIKE :search')
-                ->setParameter('search', $term);
+        // Chaque mot doit apparaître dans le titre, l'extrait ou le contenu (ordre libre)
+        foreach (self::motsRecherche($search) as $i => $mot) {
+            $qb->andWhere(sprintf('a.titre LIKE :mot%1$d OR a.extrait LIKE :mot%1$d OR a.contenuTexte LIKE :mot%1$d', $i))
+                ->setParameter('mot' . $i, '%' . addcslashes($mot, '%_\\') . '%');
         }
 
         if ($excludeId !== null) {

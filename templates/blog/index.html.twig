@@ -50,8 +50,6 @@
                     {{ category.nom }}
                 {%- elseif tag -%}
                     Articles tagués #{{ tag.nom }}
-                {%- elseif recherche -%}
-                    Résultats pour « {{ recherche }} »
                 {%- else -%}
                     Conseils et actus informatique
                 {%- endif -%}
@@ -60,8 +58,6 @@
             <p class="text-sm md:text-base text-slate-500 leading-relaxed">
                 {%- if category and category.description -%}
                     {{ category.description }}
-                {%- elseif recherche -%}
-                    {{ articles|length }} article{{ articles|length > 1 ? 's' }} trouvé{{ articles|length > 1 ? 's' }}.
                 {%- else -%}
                     Astuces pratiques, nouveautés et alertes de sécurité pour garder votre ordinateur et votre site en forme.
                 {%- endif -%}
@@ -69,18 +65,22 @@
         </div>
     </section>
 
-    <div class="max-w-5xl mx-auto px-4 pb-16">
+    {# La recherche recharge uniquement le cadre des résultats, au fil de la frappe #}
+    <div class="max-w-5xl mx-auto px-4 pb-16"
+        data-controller="blog-search"
+        data-blog-search-url-value="{{ path(route, baseParams) }}">
 
         {# ---------- FILTRES ---------- #}
         <div class="flex flex-col md:flex-row md:items-center md:justify-center gap-3 mb-10">
             <nav class="flex gap-2 overflow-x-auto [scrollbar-width:none] md:flex-wrap md:justify-center -mx-4 px-4 md:mx-0 md:px-0" aria-label="Catégories du blog">
-                <a href="{{ path('blog_index') }}"
+                {% set paramsRecherche = recherche ? {q: recherche} : {} %}
+                <a href="{{ path('blog_index', paramsRecherche) }}" data-blog-search-target="pill" data-base-url="{{ path('blog_index') }}"
                     class="shrink-0 text-sm rounded-full px-4 py-2 border transition {{ not category and not tag ? 'bg-sage-dark border-sage-dark text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-sage-dark hover:text-sage-dark' }}">
                     Tous
                 </a>
                 {% for cat in categories %}
                     {% if compteParCategorie[cat.id] is defined %}
-                        <a href="{{ path('blog_category', {slug: cat.slug}) }}"
+                        <a href="{{ path('blog_category', {slug: cat.slug}|merge(paramsRecherche)) }}" data-blog-search-target="pill" data-base-url="{{ path('blog_category', {slug: cat.slug}) }}"
                             class="shrink-0 text-sm rounded-full px-4 py-2 border transition {{ category and category.id == cat.id ? 'bg-sage-dark border-sage-dark text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-sage-dark hover:text-sage-dark' }}">
                             {{ cat.nom }}
                         </a>
@@ -88,84 +88,26 @@
                 {% endfor %}
             </nav>
 
-            <form method="get" action="{{ path('blog_index') }}" role="search"
-                class="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2 md:w-56 focus-within:border-sage-dark transition">
+            <form method="get" action="{{ path(route, baseParams) }}" role="search"
+                data-action="submit->blog-search#submit"
+                class="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2 md:w-64 focus-within:border-sage-dark transition">
                 <i data-lucide="search" class="w-4 h-4 text-slate-400 shrink-0"></i>
-                <label for="blog-recherche" class="sr-only">Rechercher un article</label>
-                <input type="search" id="blog-recherche" name="q" value="{{ recherche }}" placeholder="Rechercher…"
-                    class="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none">
+                <label for="blog-recherche" class="sr-only">
+                    {{ category ? 'Rechercher dans ' ~ category.nom : (tag ? 'Rechercher dans #' ~ tag.nom : 'Rechercher un article') }}
+                </label>
+                <input type="search" id="blog-recherche" name="q" value="{{ recherche }}" maxlength="100" autocomplete="off"
+                    placeholder="{{ category ? 'Rechercher dans ' ~ category.nom ~ '…' : 'Rechercher…' }}"
+                    data-blog-search-target="input" data-action="input->blog-search#queue"
+                    class="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none [&::-webkit-search-cancel-button]:cursor-pointer">
             </form>
         </div>
 
-        {# ---------- ARTICLE À LA UNE ---------- #}
-        {% if aLaUne %}
-            <a href="{{ path('blog_show', {slug: aLaUne.slug}) }}" data-animate="up"
-                class="group grid grid-cols-1 md:grid-cols-[1.15fr_1fr] gap-6 md:gap-8 bg-white border border-slate-200 rounded-2xl p-3 md:p-4 mb-8 hover:shadow-lg hover:shadow-slate-900/5 transition">
-                <div class="h-56 md:h-72 rounded-xl overflow-hidden">
-                    {% include 'blog/_cover.html.twig' with {article: aLaUne, classes: 'w-full h-full group-hover:scale-105 transition duration-300', eager: true} only %}
-                </div>
-                <div class="flex flex-col justify-center px-2 pb-3 md:px-0 md:pb-0 md:pr-6">
-                    <p class="text-xs mb-3">
-                        <span class="inline-flex items-center gap-1 bg-sage-dark/10 text-sage-dark font-medium rounded-full px-2.5 py-1">À la une</span>
-                        {% if aLaUne.category %}<span class="text-sage-dark font-medium ml-2">{{ aLaUne.category.nom }}</span>{% endif %}
-                    </p>
-                    <h2 class="font-heading font-medium text-xl md:text-2xl text-slate-800 leading-snug mb-3 group-hover:text-sage-dark transition">{{ aLaUne.titre }}</h2>
-                    {% if aLaUne.extrait %}
-                        <p class="text-sm text-slate-500 leading-relaxed line-clamp-3 mb-4">{{ aLaUne.extrait }}</p>
-                    {% endif %}
-                    <p class="text-xs text-slate-400">{{ aLaUne.datePublication|date_fr }} · {{ aLaUne.tempsLecture }} min de lecture</p>
-                </div>
-            </a>
-        {% endif %}
-
-        {# ---------- GRILLE ---------- #}
-        {% if articles|length > 0 %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {% for article in articles %}
-                    <div data-animate="up" class="flex">
-                        {% include 'blog/_card.html.twig' with {article: article} only %}
-                    </div>
-                {% endfor %}
-            </div>
-        {% elseif not aLaUne %}
-            <div class="bg-white border border-slate-200 rounded-2xl text-center py-16 px-6">
-                <i data-lucide="newspaper" class="w-8 h-8 text-sage-light mx-auto mb-3"></i>
-                {% if recherche %}
-                    <p class="font-heading font-medium text-slate-700 mb-1">Aucun article ne correspond à votre recherche</p>
-                    <p class="text-sm text-slate-400 mb-5">Essayez avec un autre mot-clé.</p>
-                    <a href="{{ path('blog_index') }}" class="text-sm text-sage-dark font-medium">Voir tous les articles</a>
-                {% else %}
-                    <p class="font-heading font-medium text-slate-700 mb-1">Les premiers articles arrivent bientôt</p>
-                    <p class="text-sm text-slate-400">En attendant, une question ? <a href="{{ path('app_contact') }}" class="text-sage-dark underline">Contactez-moi</a>.</p>
-                {% endif %}
-            </div>
-        {% endif %}
-
-        {# ---------- PAGINATION ---------- #}
-        {% if totalPages > 1 %}
-            <nav class="flex items-center justify-center gap-2 mt-12" aria-label="Pagination">
-                {% if page > 1 %}
-                    <a href="{{ path(route, page - 1 > 1 ? routeParams|merge({page: page - 1}) : routeParams) }}" rel="prev"
-                        class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-600 hover:border-sage-dark hover:text-sage-dark transition" aria-label="Page précédente">
-                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    </a>
-                {% endif %}
-                {% for p in 1..totalPages %}
-                    {% if p == page %}
-                        <span class="w-10 h-10 flex items-center justify-center rounded-full bg-sage-dark text-white text-sm font-medium" aria-current="page">{{ p }}</span>
-                    {% else %}
-                        <a href="{{ path(route, p > 1 ? routeParams|merge({page: p}) : routeParams) }}"
-                            class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-200 text-sm text-slate-600 hover:border-sage-dark hover:text-sage-dark transition">{{ p }}</a>
-                    {% endif %}
-                {% endfor %}
-                {% if page < totalPages %}
-                    <a href="{{ path(route, routeParams|merge({page: page + 1})) }}" rel="next"
-                        class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-600 hover:border-sage-dark hover:text-sage-dark transition" aria-label="Page suivante">
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </a>
-                {% endif %}
-            </nav>
-        {% endif %}
+        {# target="_top" : les liens des cartes et de la pagination ouvrent une vraie page #}
+        <turbo-frame id="blog-resultats" target="_top" class="block"
+            data-blog-search-target="frame"
+            data-action="turbo:before-frame-render->blog-search#beforeRender">
+            {% include 'blog/_resultats.html.twig' %}
+        </turbo-frame>
     </div>
 
 {% endblock %}

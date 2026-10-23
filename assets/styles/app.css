@@ -204,3 +204,30 @@
     border-left-color: var(--color-sage-dark);
     font-weight: 500;
 }
+
+/* Recherche en direct du blog */
+#blog-resultats {
+    transition: opacity 0.2s ease;
+}
+#blog-resultats[aria-busy="true"] {
+    opacity: 0.45;
+}
+#blog-resultats.blog-fade-in {
+    animation: blog-fade-in 0.25s ease;
+}
+@keyframes blog-fade-in {
+    from {
+        opacity: 0.45;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+.blog-mark {
+    background: #dbe7df;
+    color: #2f5443;
+    border-radius: 0.25rem;
+    padding: 0 0.15em;
+}

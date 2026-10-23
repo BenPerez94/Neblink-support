@@ -34,6 +34,10 @@ class Article
     #[ORM\Column(type: 'text')]
     private string $contenu = '';
 
+    /** Contenu sans balises HTML, utilisé par la recherche. */
+    #[ORM\Column(type: 'text')]
+    private string $contenuTexte = '';
+
     /** Titres h2/h3 du contenu : [['niveau' => 2, 'id' => '...', 'texte' => '...'], ...] */
     #[ORM\Column(type: 'json')]
     private array $sommaire = [];
@@ -130,6 +134,17 @@ class Article
     public function setContenu(string $contenu): static
     {
         $this->contenu = $contenu;
+        return $this;
+    }
+
+    public function getContenuTexte(): string
+    {
+        return $this->contenuTexte;
+    }
+
+    public function setContenuTexte(string $contenuTexte): static
+    {
+        $this->contenuTexte = $contenuTexte;
         return $this;
     }
 
