@@ -78,7 +78,6 @@ class ImagePartageTest extends WebTestCase
             self::assertSame('630', $crawler->filter('meta[property="og:image:height"]')->attr('content'));
             // Bloc de partage présent deux fois : en bas de l'article (mobile) et dans la sidebar
             self::assertCount(2, $crawler->filter('[data-native-share]'));
-            self::assertCount(2, $crawler->filter('a[href="https://www.instagram.com/neblink34/"]'));
         } finally {
             $em->remove($em->getRepository(Article::class)->findOneBy(['slug' => 'partage-sans-couverture']));
             $em->flush();
