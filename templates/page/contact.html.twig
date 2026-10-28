@@ -48,6 +48,9 @@
                             {{ form_widget(contactForm.message) }}
                         </div>
 
+                        {# Captcha Cloudflare Turnstile (invisible la plupart du temps) #}
+                        <div class="mb-6 min-h-[65px] flex justify-center" data-controller="turnstile" data-turnstile-sitekey-value="{{ turnstile_site_key }}"></div>
+
                         <button type="submit" class="w-full bg-linear-to-r from-sage-dark to-sage text-white font-heading font-semibold text-base rounded-xl py-4 cursor-pointer hover:opacity-90 transition">
                             Envoyer ma demande
                         </button>

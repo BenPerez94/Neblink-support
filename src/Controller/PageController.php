@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Contact;
 use App\Form\ContactType;
+use App\Service\TurnstileVerifier;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,16 +38,34 @@ final class PageController extends AbstractController
     public function contact(
         Request $request,
         EntityManagerInterface $em,
-        MailerInterface $mailer
+        MailerInterface $mailer,
+        TurnstileVerifier $turnstile,
+        RateLimiterFactoryInterface $contactFormLimiter,
     ): Response {
         $contact = new Contact();
         $form = $this->createForm(ContactType::class, $contact);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
+            // Champ piège rempli : c'est un robot, on fait comme si tout s'était bien passé
             if ($form->get('website')->getData()) {
                 return $this->redirectToRoute('app_contact');
             }
+
+            if (!$contactFormLimiter->create($request->getClientIp())->consume()->isAccepted()) {
+                $this->addFlash('error', 'Trop de messages envoyés depuis votre connexion. Réessayez dans une heure, ou appelez-moi directement.');
+
+                return $this->render('page/contact.html.twig', ['contactForm' => $form], new Response(status: Response::HTTP_TOO_MANY_REQUESTS));
+            }
+
+            if (!$turnstile->verify($request->request->getString('cf-turnstile-response'), $request->getClientIp())) {
+                $this->addFlash('error', 'La vérification anti-robot a échoué. Merci de réessayer.');
+
+                return $this->render('page/contact.html.twig', ['contactForm' => $form], new Response(status: Response::HTTP_UNPROCESSABLE_ENTITY));
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($contact);
             $em->flush();
 

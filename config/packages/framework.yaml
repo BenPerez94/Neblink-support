@@ -13,3 +13,18 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+        # Pas d'appel réseau vers Cloudflare Turnstile pendant les tests
+        http_client:
+            mock_response_factory: App\Tests\Mock\TurnstileMockResponse
+        # Compteur d'envois dédié aux tests, vidé au début de chaque test
+        cache:
+            pools:
+                cache.rate_limiter_test:
+                    adapter: cache.adapter.filesystem
+                    public: true
+        rate_limiter:
+            contact_form:
+                policy: sliding_window
+                limit: 3
+                interval: '1 hour'
+                cache_pool: cache.rate_limiter_test
