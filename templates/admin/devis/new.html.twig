@@ -1,0 +1,158 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Nouveau devis - Admin Neblink{% endblock %}
+
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {% if project %}
+        {{ breadcrumb.render([
+            {label: 'Tableau de bord', path: path('admin_dashboard')},
+            {label: 'Projets', path: path('admin_projects')},
+            {label: project.titre, path: path('admin_project_show', {id: project.id})},
+            {label: 'Nouveau devis'}
+        ]) }}
+    {% else %}
+        {{ breadcrumb.render([
+            {label: 'Tableau de bord', path: path('admin_dashboard')},
+            {label: 'Clients', path: path('admin_clients')},
+            {label: client.nom, path: path('admin_client_show', {id: client.id})},
+            {label: 'Nouveau devis'}
+        ]) }}
+    {% endif %}
+{% endblock %}
+
+{% block admin_content %}
+
+    <form method="post" data-devis-form>
+
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-11 h-11 rounded-xl bg-linear-to-br from-sage-dark to-sage flex items-center justify-center shrink-0 shadow-md shadow-sage-dark/25">
+                <i data-lucide="file-text" class="w-5 h-5 text-white"></i>
+            </div>
+            <div class="min-w-0">
+                <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-0.5">Nouveau devis</p>
+                <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800 truncate">
+                    {{ client.nom }}{% if project %} · {{ project.titre }}{% endif %}
+                </h1>
+            </div>
+        </div>
+
+        {# ---------- Projet (uniquement depuis la fiche client) ---------- #}
+        {% if not project %}
+            <div class="bg-white rounded-3xl p-6 md:p-8 mb-4">
+                <p class="flex items-center gap-2 font-heading font-medium text-base text-slate-800 mb-4">
+                    <span class="w-6 h-6 rounded-md bg-sage-dark/10 flex items-center justify-center">
+                        <i data-lucide="folder-kanban" class="w-3.5 h-3.5 text-sage-dark"></i>
+                    </span>
+                    Projet
+                </p>
+
+                <div class="relative" data-select-dropdown>
+                    <input type="hidden" name="project" value="{{ old.project }}" data-select-value data-devis-project-input>
+                    <button type="button" data-select-toggle aria-expanded="false"
+                        class="w-full flex items-center justify-between gap-2 text-base bg-[#faf9f6] border border-slate-200 rounded-2xl px-4 py-3 text-slate-700 hover:border-sage-dark/40 transition cursor-pointer">
+                        <span data-select-label class="truncate">
+                            {% set current = client.projects|filter(p => (p.id ~ '') == old.project)|first %}
+                            {{ current ? current.titre : 'Nouveau projet' }}
+                        </span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                    </button>
+                    <div data-select-panel
+                        class="absolute left-0 top-[calc(100%+4px)] w-full bg-white rounded-xl shadow-xl border border-slate-100 p-1 opacity-0 -translate-y-2 pointer-events-none transition-all duration-150 z-30 max-h-64 overflow-y-auto">
+                        <button type="button" data-select-option data-value="" data-label="Nouveau projet"
+                            class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-base text-left transition cursor-pointer {{ old.project == '' ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                            Nouveau projet
+                            <i data-lucide="check" class="w-4 h-4 shrink-0 {{ old.project != '' ? 'hidden' : '' }}" data-select-check></i>
+                        </button>
+                        {% for p in client.projects %}
+                            <button type="button" data-select-option data-value="{{ p.id }}" data-label="{{ p.titre }}"
+                                class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-base text-left transition cursor-pointer {{ (p.id ~ '') == old.project ? 'text-sage-dark font-medium bg-sage-dark/5' : 'text-slate-600 hover:bg-[#faf9f6]' }}">
+                                <span class="truncate">{{ p.titre }}</span>
+                                <i data-lucide="check" class="w-4 h-4 shrink-0 {{ (p.id ~ '') != old.project ? 'hidden' : '' }}" data-select-check></i>
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div data-devis-new-project class="mt-4">
+                    <label class="block text-sm font-medium text-slate-600 mb-2">Titre du nouveau projet</label>
+                    <input type="text" name="titre" value="{{ old.titre }}" placeholder="Ex : Site vitrine"
+                        class="w-full text-base bg-[#faf9f6] border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-sage-dark transition">
+                </div>
+            </div>
+        {% endif %}
+
+        {# ---------- Grille tarifaire ---------- #}
+        {% for categorie, tarifs in groups %}
+            <div class="bg-white rounded-3xl p-5 md:p-6 mb-4">
+                <p class="flex items-center gap-2 font-heading font-medium text-base text-slate-800 mb-4">
+                    <span class="w-6 h-6 rounded-md bg-sage-dark/10 flex items-center justify-center">
+                        <i data-lucide="list-checks" class="w-3.5 h-3.5 text-sage-dark"></i>
+                    </span>
+                    {{ categorie }}
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                    {% for tarif in tarifs %}
+                        {% set checked = tarif.obligatoire or tarif.id in old.tarifs %}
+                        <div data-devis-row data-price="{{ tarif.prix }}"
+                            class="relative flex flex-col justify-between gap-4 p-4 rounded-2xl border-2 transition {{ checked ? 'bg-sage-dark/5 border-sage-dark' : 'bg-[#faf9f6] border-transparent hover:border-slate-200' }}">
+                            <label class="flex items-start gap-3 min-w-0 after:absolute after:inset-0 after:rounded-2xl {{ tarif.obligatoire ? 'cursor-default' : 'cursor-pointer' }}">
+                                <input type="checkbox" name="tarifs[]" value="{{ tarif.id }}" data-devis-check class="sr-only"
+                                    {{ checked ? 'checked' }} {{ tarif.obligatoire ? 'disabled' }}>
+                                <span data-devis-box class="mt-0.5 w-5 h-5 shrink-0 rounded border-2 flex items-center justify-center transition {{ checked ? 'bg-sage-dark border-sage-dark' : 'border-slate-300 bg-white' }}">
+                                    <span data-devis-icon class="{{ checked ? '' : 'hidden' }}"><i data-lucide="check" class="w-3 h-3 text-white"></i></span>
+                                </span>
+                                <span class="min-w-0">
+                                    <span class="block text-base font-medium text-slate-800">{{ tarif.libelle }}</span>
+                                    {% if tarif.obligatoire %}
+                                        <span class="inline-block text-[11px] font-medium text-sage-dark bg-sage-dark/10 rounded-full px-2 py-0.5 mt-1">Obligatoire</span>
+                                    {% endif %}
+                                    {% if tarif.description %}
+                                        <span class="block text-sm text-slate-400 mt-1">{{ tarif.description }}</span>
+                                    {% endif %}
+                                </span>
+                            </label>
+
+                            <div class="relative z-10 flex items-center justify-between gap-2">
+                                <span class="font-heading font-semibold text-lg {{ tarif.prix > 0 ? 'text-slate-800' : 'text-sage-dark' }}">
+                                    {% if tarif.prix > 0 %}{{ tarif.prix|number_format(2, ',', ' ')|replace({',00': ''}) }} €{% if tarif.unite %}<span class="text-sm font-normal text-slate-400">/{{ tarif.unite }}</span>{% endif %}{% else %}Inclus{% endif %}
+                                </span>
+
+                                {% if not tarif.obligatoire %}
+                                    <div data-devis-qtywrap class="items-center gap-1.5 shrink-0" style="display: {{ checked ? 'flex' : 'none' }}">
+                                        <span class="text-sm text-slate-400">×</span>
+                                        <input type="number" min="1" max="99" name="quantites[{{ tarif.id }}]" value="{{ old.quantites[tarif.id] ?? 1 }}" data-devis-qty
+                                            class="w-16 text-base text-center bg-white border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-sage-dark">
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <p class="text-base text-slate-400 text-center py-16">Aucun tarif actif. Ajoute-en dans la page Tarifs.</p>
+        {% endfor %}
+
+        {# ---------- Barre de total flottante ---------- #}
+        <div class="sticky bottom-4 z-20 mt-2 bg-white/90 backdrop-blur-md border border-slate-200 rounded-2xl shadow-lg shadow-slate-900/5 px-4 md:px-5 py-3">
+            <div class="flex items-center justify-between gap-4">
+                <div class="min-w-0">
+                    <p class="text-xs text-slate-400"><span data-devis-count>0</span> élément(s) · TVA non applicable</p>
+                    <p class="font-heading font-bold text-2xl text-slate-800" data-devis-total>0 €</p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <a href="{{ project ? path('admin_project_show', {id: project.id}) : path('admin_client_show', {id: client.id}) }}" class="hidden sm:block text-sm text-slate-500 hover:text-slate-700 px-3 py-3">
+                        Annuler
+                    </a>
+                    <button type="submit" class="flex items-center gap-2 bg-sage-dark text-white font-heading font-medium text-sm rounded-xl px-5 py-3 cursor-pointer hover:opacity-90 transition shadow-md shadow-sage-dark/20">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        Générer le devis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

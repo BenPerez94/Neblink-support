@@ -7,6 +7,15 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # Informations de l'émetteur affichées sur les devis (PDF).
+    # Renseigner le SIRET : il est obligatoire sur un devis.
+    app.devis_emetteur:
+        nom: 'Neblink'
+        adresse: '52700 Rimaucourt'
+        email: 'contact@neblink.fr'
+        telephone: '07 44 47 69 07'
+        siret: '824 832 463 00031'
+    app.devis_validite_jours: 30
 
 services:
     # default configuration for services in *this* file

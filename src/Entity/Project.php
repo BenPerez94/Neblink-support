@@ -38,12 +38,17 @@ class Project
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: Document::class, orphanRemoval: true)]
     private Collection $documents;
 
+    #[ORM\OneToMany(mappedBy: 'project', targetEntity: Devis::class)]
+    #[ORM\OrderBy(['createdAt' => 'ASC'])]
+    private Collection $devis;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $this->statut = 'en_attente';
         $this->steps = new ArrayCollection();
         $this->documents = new ArrayCollection();
+        $this->devis = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,5 +119,13 @@ class Project
     public function getDocuments(): Collection
     {
         return $this->documents;
+    }
+
+    /**
+     * @return Collection<int, Devis>
+     */
+    public function getDevis(): Collection
+    {
+        return $this->devis;
     }
 }

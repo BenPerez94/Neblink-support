@@ -1,0 +1,90 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Tarifs - Admin Neblink{% endblock %}
+
+{% import 'admin/_breadcrumb.html.twig' as breadcrumb %}
+{% block breadcrumb %}
+    {{ breadcrumb.render([
+        {label: 'Tableau de bord', path: path('admin_dashboard')},
+        {label: 'Tarifs'}
+    ]) }}
+{% endblock %}
+
+{% block admin_content %}
+
+    <div class="flex items-center gap-3 mb-6">
+        <div class="w-11 h-11 rounded-xl bg-linear-to-br from-sage-dark to-sage flex items-center justify-center shrink-0 shadow-md shadow-sage-dark/25">
+            <i data-lucide="tag" class="w-5 h-5 text-white"></i>
+        </div>
+        <div class="min-w-0">
+            <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-0.5">Admin</p>
+            <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">Grille tarifaire</h1>
+        </div>
+    </div>
+
+    <p class="text-sm text-slate-400 mb-5 max-w-2xl">
+        Ces tarifs alimentent le générateur de devis. Modifier un prix n'affecte pas les devis déjà générés. Un tarif désactivé n'apparaît plus dans les devis.
+    </p>
+
+    {% set inputClass = 'w-full text-sm bg-[#faf9f6] border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sage-dark transition' %}
+
+    <div class="max-w-4xl">
+        {% for categorie, tarifs in groups %}
+            <div class="bg-white rounded-3xl p-4 md:p-6 mb-4">
+                <p class="font-heading font-medium text-base text-slate-800 mb-3 px-1">{{ categorie }}</p>
+
+                <div class="flex flex-col divide-y divide-slate-100">
+                    {% for tarif in tarifs %}
+                        <form method="post" action="{{ path('admin_tarif_edit', {id: tarif.id}) }}" class="py-3 grid grid-cols-12 gap-2 items-center {{ tarif.actif ? '' : 'opacity-60' }}">
+                            <input type="text" name="libelle" value="{{ tarif.libelle }}" required placeholder="Libellé" class="{{ inputClass }} col-span-12 md:col-span-4">
+                            <input type="text" name="description" value="{{ tarif.description }}" placeholder="Description (optionnel)" class="{{ inputClass }} col-span-12 md:col-span-3">
+                            <input type="text" inputmode="decimal" name="prix" value="{{ tarif.prix }}" placeholder="Prix" class="{{ inputClass }} col-span-4 md:col-span-1">
+                            <input type="text" name="unite" value="{{ tarif.unite }}" placeholder="Unité" class="{{ inputClass }} col-span-4 md:col-span-1">
+                            <label class="col-span-4 md:col-span-1 flex items-center justify-center gap-1.5 text-xs text-slate-500 cursor-pointer">
+                                <input type="checkbox" name="actif" value="1" {{ tarif.actif ? 'checked' }} class="accent-[#3f6b56]">
+                                Actif
+                            </label>
+                            <div class="col-span-12 md:col-span-2 flex items-center justify-end gap-1">
+                                <button type="submit" title="Enregistrer" class="h-9 px-3 flex items-center gap-1 bg-sage-dark text-white text-xs font-medium rounded-lg cursor-pointer hover:opacity-90 transition">
+                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    Enregistrer
+                                </button>
+                                {% if not tarif.obligatoire %}
+                                    <button type="submit" form="delete-tarif-{{ tarif.id }}" title="Supprimer"
+                                        class="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-red-400 rounded-lg cursor-pointer transition">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </form>
+                        {% if not tarif.obligatoire %}
+                            <form id="delete-tarif-{{ tarif.id }}" method="post" action="{{ path('admin_tarif_delete', {id: tarif.id}) }}"
+                                data-confirm-delete data-confirm-title="Supprimer ce tarif ?" data-confirm-text="Les devis déjà générés ne sont pas modifiés."></form>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+
+        {# ---------- Nouveau tarif ---------- #}
+        <div class="bg-white rounded-3xl p-4 md:p-6">
+            <p class="font-heading font-medium text-base text-slate-800 mb-3 px-1">Ajouter un tarif</p>
+            <form method="post" action="{{ path('admin_tarif_add') }}" class="grid grid-cols-12 gap-2 items-center">
+                <input type="text" name="categorie" list="categories" required placeholder="Catégorie" class="{{ inputClass }} col-span-12 md:col-span-3">
+                <datalist id="categories">
+                    {% for categorie, _ in groups %}<option value="{{ categorie }}">{% endfor %}
+                </datalist>
+                <input type="text" name="libelle" required placeholder="Libellé" class="{{ inputClass }} col-span-12 md:col-span-3">
+                <input type="text" name="description" placeholder="Description (optionnel)" class="{{ inputClass }} col-span-12 md:col-span-2">
+                <input type="text" inputmode="decimal" name="prix" placeholder="Prix" class="{{ inputClass }} col-span-6 md:col-span-1">
+                <input type="text" name="unite" placeholder="Unité" class="{{ inputClass }} col-span-6 md:col-span-1">
+                <input type="hidden" name="actif" value="1">
+                <button type="submit" class="col-span-12 md:col-span-2 h-9 flex items-center justify-center gap-1 bg-sage-dark text-white text-xs font-medium rounded-lg cursor-pointer hover:opacity-90 transition">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    Ajouter
+                </button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

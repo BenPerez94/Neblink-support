@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft, Share2 } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft, Share2, CalendarCheck, Zap, Wallet } from 'lucide';
 
 function renderIcons() {
     createIcons({
@@ -78,6 +78,9 @@ function renderIcons() {
             Redo,
             Newspaper,
             Tag,
+            CalendarCheck,
+            Zap,
+            Wallet,
             Tags,
             Search,
             ArrowLeft,
@@ -320,6 +323,7 @@ function initSelectDropdowns() {
         options.forEach(option => {
             option.addEventListener('click', () => {
                 hiddenInput.value = option.dataset.value;
+                hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
                 if (label) label.textContent = option.dataset.label;
                 if (dot) {
                     if (option.dataset.dotClass) {
@@ -379,6 +383,131 @@ function initInlineAddForms() {
             });
         }
     });
+}
+
+function initDevisBuilder() {
+    const form = document.querySelector('[data-devis-form]');
+    if (!form) return;
+
+    const rows = form.querySelectorAll('[data-devis-row]');
+    const totalEl = form.querySelector('[data-devis-total]');
+    const countEl = form.querySelector('[data-devis-count]');
+    const projectInput = form.querySelector('[data-devis-project-input]');
+    const newProject = form.querySelector('[data-devis-new-project]');
+    const formatEuros = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+
+    const update = () => {
+        let total = 0;
+        let count = 0;
+
+        rows.forEach(row => {
+            const check = row.querySelector('[data-devis-check]');
+            const qty = row.querySelector('[data-devis-qty]');
+            const qtyWrap = row.querySelector('[data-devis-qtywrap]');
+            const box = row.querySelector('[data-devis-box]');
+            const icon = row.querySelector('[data-devis-icon]');
+            const active = check.checked;
+
+            if (active) {
+                count++;
+                const quantity = qty ? Math.max(1, parseInt(qty.value, 10) || 1) : 1;
+                total += parseFloat(row.dataset.price) * quantity;
+            }
+
+            row.classList.toggle('bg-sage-dark/5', active);
+            row.classList.toggle('border-sage-dark', active);
+            row.classList.toggle('bg-[#faf9f6]', !active);
+            row.classList.toggle('border-transparent', !active);
+            box.classList.toggle('bg-sage-dark', active);
+            box.classList.toggle('border-sage-dark', active);
+            box.classList.toggle('border-slate-300', !active);
+            box.classList.toggle('bg-white', !active);
+            if (icon) icon.classList.toggle('hidden', !active);
+            if (qtyWrap) qtyWrap.style.display = active ? 'flex' : 'none';
+        });
+
+        totalEl.textContent = formatEuros(total);
+        countEl.textContent = count;
+        if (projectInput && newProject) {
+            newProject.style.display = projectInput.value === '' ? '' : 'none';
+        }
+    };
+
+    form.addEventListener('change', update);
+    form.addEventListener('input', update);
+    update();
+}
+
+function initEcheancier() {
+    const form = document.querySelector('[data-echeancier-form]');
+    const list = form && form.querySelector('[data-echeance-list]');
+    if (!list) return;
+
+    const total = parseFloat(form.dataset.total) || 0;
+    const template = form.querySelector('[data-echeance-template]');
+    const resteEl = form.querySelector('[data-echeance-reste]');
+    const formatEuros = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
+    let nextIndex = list.children.length;
+
+    const rows = () => [...list.querySelectorAll('[data-echeance-row]')];
+
+    const update = () => {
+        const sum = rows().reduce((acc, row) => acc + (parseFloat(row.querySelector('[data-echeance-montant]').value) || 0), 0);
+        const reste = Math.round((total - sum) * 100) / 100;
+        const ok = Math.abs(reste) < 0.01;
+        resteEl.textContent = ok ? 'Tout est réparti' : (reste > 0 ? `Reste à répartir : ${formatEuros(reste)}` : `Dépassement : ${formatEuros(-reste)}`);
+        resteEl.classList.toggle('text-sage-dark', ok);
+        resteEl.classList.toggle('text-slate-800', !ok);
+    };
+
+    const addRow = (libelle = '', montant = '') => {
+        const html = template.innerHTML.replaceAll('__INDEX__', nextIndex++);
+        list.insertAdjacentHTML('beforeend', html);
+        const row = list.lastElementChild;
+        row.querySelector('[data-echeance-libelle]').value = libelle;
+        row.querySelector('[data-echeance-montant]').value = montant;
+        renderIcons();
+        return row;
+    };
+
+    const applyPreset = (parts) => {
+        list.innerHTML = '';
+        nextIndex = 0;
+        let allocated = 0;
+        parts.forEach(([libelle, ratio], i) => {
+            // La dernière ligne absorbe l'arrondi pour que la somme tombe juste.
+            const montant = i === parts.length - 1 ? Math.round((total - allocated) * 100) / 100 : Math.round(total * ratio * 100) / 100;
+            allocated += montant;
+            addRow(libelle, montant);
+        });
+        update();
+    };
+
+    const presets = {
+        'full': [['Paiement intégral', 1]],
+        '30-70': [['Acompte', 0.3], ['Solde', 0.7]],
+        '50-50': [['Acompte', 0.5], ['Solde', 0.5]],
+        'third': [['1er versement', 1 / 3], ['2e versement', 1 / 3], ['3e versement', 1 / 3]],
+    };
+
+    form.querySelectorAll('[data-echeance-preset]').forEach(btn => {
+        btn.addEventListener('click', () => applyPreset(presets[btn.dataset.echeancePreset]));
+    });
+
+    form.querySelector('[data-echeance-add]').addEventListener('click', () => {
+        addRow('Échéance ' + (rows().length + 1));
+        update();
+    });
+
+    list.addEventListener('click', (e) => {
+        const remove = e.target.closest('[data-echeance-remove]');
+        if (!remove) return;
+        remove.closest('[data-echeance-row]').remove();
+        update();
+    });
+
+    form.addEventListener('input', update);
+    update();
 }
 
 function initStepEditors() {
@@ -556,6 +685,8 @@ document.addEventListener('turbo:load', initAdminMessagesPanel);
 document.addEventListener('turbo:load', initDeleteConfirm);
 document.addEventListener('turbo:load', initAdminMobileSidebar);
 document.addEventListener('turbo:load', initStepEditors);
+document.addEventListener('turbo:load', initDevisBuilder);
+document.addEventListener('turbo:load', initEcheancier);
 document.addEventListener('turbo:load', initInlineAddForms);
 document.addEventListener('turbo:load', initSelectDropdowns);
 document.addEventListener('turbo:load', initPasswordToggles);

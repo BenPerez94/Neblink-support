@@ -13,7 +13,7 @@
 
 {% block admin_content %}
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
             <p class="text-xs font-medium text-sage-dark uppercase tracking-wide mb-1">Client</p>
             <h1 class="font-heading font-semibold text-xl md:text-2xl text-slate-800">{{ client.nom }}</h1>
@@ -21,10 +21,16 @@
                 {{ client.email }}{% if client.telephone %} · {{ client.telephone }}{% endif %}
             </p>
         </div>
-        <a href="{{ path('admin_project_new', {clientId: client.id}) }}" class="flex items-center gap-1.5 bg-sage-dark text-white text-sm font-medium rounded-xl px-4 py-2.5 shrink-0">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            Nouveau projet
-        </a>
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="{{ path('admin_devis_new_client', {id: client.id}) }}" class="flex items-center gap-1.5 bg-sage-dark/10 text-sage-dark text-sm font-medium rounded-xl px-4 py-2.5 hover:bg-sage-dark/15 transition">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Nouveau devis
+            </a>
+            <a href="{{ path('admin_project_new', {clientId: client.id}) }}" class="flex items-center gap-1.5 bg-sage-dark text-white text-sm font-medium rounded-xl px-4 py-2.5">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Nouveau projet
+            </a>
+        </div>
     </div>
 
     {# ---------- Projets web ---------- #}

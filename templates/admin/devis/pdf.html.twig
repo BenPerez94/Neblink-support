@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ devis.numero }}</title>
+    <style>
+        @page { margin: 40px 44px; }
+        body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #1e293b; line-height: 1.45; }
+        h1 { font-size: 26px; letter-spacing: 3px; color: #3f6b56; margin: 0; }
+        .muted { color: #64748b; }
+        .small { font-size: 9.5px; }
+        table { width: 100%; border-collapse: collapse; }
+        .head td { vertical-align: top; }
+        .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #3f6b56; margin-bottom: 4px; }
+        .box { background: #f4f2ec; border-radius: 6px; padding: 12px 14px; }
+        .lignes th { background: #3f6b56; color: #ffffff; text-align: left; font-size: 9.5px; padding: 8px 10px; text-transform: uppercase; letter-spacing: 0.8px; }
+        .lignes td { padding: 9px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        .right { text-align: right; }
+        .total td { padding: 10px; font-size: 13px; font-weight: bold; }
+        .signature { border: 1px solid #cbd5e1; border-radius: 6px; height: 70px; padding: 8px 10px; }
+    </style>
+</head>
+<body>
+
+    <table class="head">
+        <tr>
+            <td style="width: 60%;">
+                {% if logo %}
+                    <img src="{{ logo }}" alt="" style="width: 34px; height: 34px; vertical-align: middle;">
+                {% endif %}
+                <span style="font-size: 17px; font-weight: bold; vertical-align: middle; margin-left: 6px;">{{ emetteur.nom }}</span>
+            </td>
+            <td class="right">
+                <h1>DEVIS</h1>
+                <div style="margin-top: 6px;"><strong>{{ devis.numero }}</strong></div>
+                <div class="muted">Émis le {{ devis.createdAt|date('d/m/Y') }}</div>
+                <div class="muted">Valable {{ validiteJours }} jours</div>
+            </td>
+        </tr>
+    </table>
+
+    <table style="margin-top: 26px;">
+        <tr>
+            <td style="width: 48%; vertical-align: top;">
+                <div class="label">Émetteur</div>
+                <strong>{{ emetteur.nom }}</strong><br>
+                {% if emetteur.adresse %}{{ emetteur.adresse }}<br>{% endif %}
+                {% if emetteur.email %}{{ emetteur.email }}<br>{% endif %}
+                {% if emetteur.telephone %}{{ emetteur.telephone }}<br>{% endif %}
+                {% if emetteur.siret %}<span class="muted">SIRET {{ emetteur.siret }}</span>{% endif %}
+            </td>
+            <td style="width: 4%;"></td>
+            <td style="width: 48%; vertical-align: top;" class="box">
+                <div class="label">Destinataire</div>
+                <strong>{{ client.nom }}</strong><br>
+                {% if client.email %}{{ client.email }}<br>{% endif %}
+                {% if client.telephone %}{{ client.telephone }}{% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 22px;">
+        <div class="label">Projet</div>
+        <strong style="font-size: 13px;">{{ project.titre }}</strong>
+    </div>
+
+    <table class="lignes" style="margin-top: 16px;">
+        <thead>
+            <tr>
+                <th>Désignation</th>
+                <th class="right" style="width: 50px;">Qté</th>
+                <th class="right" style="width: 85px;">Prix unitaire</th>
+                <th class="right" style="width: 85px;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in devis.lignes %}
+                <tr>
+                    <td>
+                        <strong>{{ ligne.libelle }}</strong>
+                        {% if ligne.description %}<br><span class="muted small">{{ ligne.description }}</span>{% endif %}
+                    </td>
+                    <td class="right">{{ ligne.quantite }}{% if ligne.unite %} {{ ligne.unite }}{% endif %}</td>
+                    <td class="right">{% if ligne.prix > 0 %}{{ ligne.prix|number_format(2, ',', ' ') }} €{% else %}Inclus{% endif %}</td>
+                    <td class="right">{% if ligne.prix > 0 %}{{ (ligne.prix * ligne.quantite)|number_format(2, ',', ' ') }} €{% else %}—{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="total" style="margin-top: 6px;">
+        <tr>
+            <td style="width: 55%;"></td>
+            <td style="background: #3f6b56; color: #ffffff; border-radius: 6px;">Total à payer</td>
+            <td class="right" style="background: #3f6b56; color: #ffffff; border-radius: 6px; width: 110px;">{{ devis.total|number_format(2, ',', ' ') }} €</td>
+        </tr>
+    </table>
+    <p class="muted small right" style="margin-top: 6px;">TVA non applicable, article 293 B du CGI.</p>
+
+    <table style="margin-top: 30px;">
+        <tr>
+            <td style="width: 55%; vertical-align: top;" class="muted small">
+                Devis valable {{ validiteJours }} jours à compter de sa date d'émission.
+            </td>
+            <td style="width: 5%;"></td>
+            <td style="vertical-align: top;">
+                <div class="signature">
+                    <div class="label">Bon pour accord</div>
+                    <span class="muted small">Date et signature du client</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

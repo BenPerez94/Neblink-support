@@ -104,6 +104,10 @@
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
+                <a href="{{ path('admin_devis_new_project', {id: project.id}) }}" class="h-10 flex items-center gap-1.5 bg-white text-sage-dark text-sm font-medium rounded-xl px-4 hover:bg-white/90 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    Nouveau devis
+                </a>
                 <a href="{{ path('admin_project_edit', {id: project.id}) }}" title="Modifier" class="w-10 h-10 flex items-center justify-center bg-white/15 hover:bg-white/25 rounded-xl transition">
                     <i data-lucide="pencil" class="w-4 h-4"></i>
                 </a>
@@ -202,7 +206,11 @@
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="file-text" class="w-4 h-4 text-slate-400 shrink-0"></i>
                         <div class="flex-1 min-w-0">
-                            <p class="text-base text-slate-700 truncate">{{ document.nom }}</p>
+                            {% if document.fichier %}
+                                <a href="{{ asset('uploads/documents/' ~ document.fichier) }}" target="_blank" class="block text-base text-slate-700 hover:text-sage-dark truncate transition">{{ document.nom }}</a>
+                            {% else %}
+                                <p class="text-base text-slate-700 truncate">{{ document.nom }}</p>
+                            {% endif %}
                             <p class="text-xs text-slate-400">
                                 {{ document.type|capitalize }}{% if document.montant %} · {{ document.montant|number_format(2, ',', ' ') }} €{% endif %}
                             </p>
@@ -269,5 +277,69 @@
         </div>
 
     </div>
+
+    {# ---------- Paiements ---------- #}
+    {% if project.devis is not empty %}
+        <div class="bg-white rounded-3xl p-6 md:p-8 mt-4">
+            <p class="flex items-center gap-2 font-heading font-medium text-base text-slate-800 mb-4">
+                <span class="w-6 h-6 rounded-md bg-sage-dark/10 flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-3.5 h-3.5 text-sage-dark"></i>
+                </span>
+                Paiements
+            </p>
+
+            <div class="flex flex-col gap-5">
+                {% for devis in project.devis %}
+                    {% set accepte = devis.statut == 'accepte' %}
+                    {% set paye = 0 %}
+                    {% for e in devis.echeances %}{% if e.payee %}{% set paye = paye + e.montant %}{% endif %}{% endfor %}
+                    {% set locked = devis.echeances|filter(e => e.payee)|length > 0 %}
+
+                    <div class="{% if not loop.first %}pt-5 border-t border-slate-100{% endif %}">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <p class="text-base font-medium text-slate-800">{{ devis.numero }}</p>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ accepte ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500' }}">
+                                    {{ accepte ? 'Accepté' : 'En attente d\'acceptation' }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-slate-400">
+                                {% if accepte %}{{ paye|number_format(2, ',', ' ')|replace({',00': ''}) }} € payés sur {% endif %}{{ devis.total|number_format(2, ',', ' ')|replace({',00': ''}) }} €
+                            </p>
+                        </div>
+
+                        {% if devis.echeances is not empty %}
+                            <div class="flex flex-col gap-2 mb-3">
+                                {% for e in devis.echeances %}
+                                    {% set enRetard = not e.payee and e.dateEcheance and e.dateEcheance|date('Y-m-d') < 'now'|date('Y-m-d') %}
+                                    <div class="flex items-center gap-3 bg-[#faf9f6] rounded-xl px-4 py-2.5">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-base text-slate-700 truncate">{{ e.libelle }}</p>
+                                            <p class="text-xs text-slate-400">
+                                                {% if e.payee %}Payée le {{ e.payeeLe|date('d/m/Y') }}{% elseif e.dateEcheance %}À régler avant le {{ e.dateEcheance|date('d/m/Y') }}{% else %}Sans date d'échéance{% endif %}
+                                            </p>
+                                        </div>
+                                        <p class="font-heading font-semibold text-base text-slate-800 shrink-0">{{ e.montant|number_format(2, ',', ' ')|replace({',00': ''}) }} €</p>
+                                        <form method="post" action="{{ path('admin_echeance_toggle', {id: e.id}) }}" class="shrink-0">
+                                            <button type="submit" class="text-xs font-medium px-2.5 py-1 rounded-full cursor-pointer {{ e.payee ? 'bg-green-100 text-green-700' : (enRetard ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700') }}">
+                                                {{ e.payee ? 'Payée' : (enRetard ? 'En retard' : 'En attente') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if not locked %}
+                            <a href="{{ path('admin_devis_echeancier', {id: devis.id}) }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-sage-dark hover:text-sage-dark/80 transition">
+                                <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
+                                {{ devis.echeances is empty ? 'Accepter et définir l\'échéancier' : 'Modifier l\'échéancier' }}
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}
