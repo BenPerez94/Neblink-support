@@ -21,6 +21,23 @@
     {% endif %}
 {% endblock %}
 
+{% macro libre(index, libelle, prix, quantite) %}
+    <div data-devis-libre class="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_8rem_5rem_auto] gap-2 items-center bg-[#faf9f6] rounded-2xl p-3">
+        <input type="text" name="libres[{{ index }}][libelle]" value="{{ libelle }}" placeholder="Libellé (ex : Hébergement 1 an)" maxlength="150"
+            class="col-span-2 sm:col-span-1 w-full text-base bg-white border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-sage-dark transition">
+        <div class="relative">
+            <input type="number" step="0.01" min="0" name="libres[{{ index }}][prix]" value="{{ prix }}" placeholder="Prix" data-devis-libre-prix
+                class="w-full text-base bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-2 focus:outline-none focus:border-sage-dark transition">
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">€</span>
+        </div>
+        <input type="number" min="1" max="99" name="libres[{{ index }}][quantite]" value="{{ quantite }}" title="Quantité" data-devis-libre-qty
+            class="w-full text-base text-center bg-white border border-slate-200 rounded-xl px-2 py-2 focus:outline-none focus:border-sage-dark transition">
+        <button type="button" data-devis-libre-remove title="Retirer" class="justify-self-end w-9 h-9 flex items-center justify-center text-slate-300 hover:text-red-400 cursor-pointer transition">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+{% endmacro %}
+
 {% block admin_content %}
 
     <form method="post" data-devis-form>
@@ -134,6 +151,30 @@
         {% else %}
             <p class="text-base text-slate-400 text-center py-16">Aucun tarif actif. Ajoute-en dans la page Tarifs.</p>
         {% endfor %}
+
+        {# ---------- Lignes personnalisées ---------- #}
+        <div class="bg-white rounded-3xl p-5 md:p-6 mb-4">
+            <p class="flex items-center gap-2 font-heading font-medium text-base text-slate-800 mb-1">
+                <span class="w-6 h-6 rounded-md bg-sage-dark/10 flex items-center justify-center">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5 text-sage-dark"></i>
+                </span>
+                Lignes personnalisées
+            </p>
+            <p class="text-sm text-slate-400 mb-4">Pour ce qui n'est pas dans la grille. Chaque ligne s'ajoute au total et crée une étape du projet.</p>
+
+            <div class="flex flex-col gap-2" data-devis-libres>
+                {% for libre in old.libres %}
+                    {{ _self.libre(loop.index0, libre.libelle, libre.prix, libre.quantite) }}
+                {% endfor %}
+            </div>
+
+            <template data-devis-libre-template>{{ _self.libre('__INDEX__', '', '', 1) }}</template>
+
+            <button type="button" data-devis-libre-add class="mt-3 inline-flex items-center gap-1.5 text-base font-medium text-sage-dark bg-sage-dark/5 hover:bg-sage-dark/10 rounded-full pl-2.5 pr-3.5 py-1.5 transition cursor-pointer">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                Ajouter une ligne
+            </button>
+        </div>
 
         {# ---------- Barre de total flottante ---------- #}
         <div class="sticky bottom-4 z-20 mt-2 bg-white/90 backdrop-blur-md border border-slate-200 rounded-2xl shadow-lg shadow-slate-900/5 px-4 md:px-5 py-3">

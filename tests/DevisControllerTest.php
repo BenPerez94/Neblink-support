@@ -86,6 +86,47 @@ class DevisControllerTest extends WebTestCase
         self::assertStringStartsWith('%PDF', (string) file_get_contents($path));
     }
 
+    public function testLignesPersonnaliseesAjoutentAuTotalEtAuxEtapes(): void
+    {
+        $project = (new Project())->setTitre('Site lignes libres')->setClient($this->clientEntity);
+        $this->em->persist($project);
+        $this->em->flush();
+
+        $this->client->request('POST', '/admin/devis/projet/' . $project->getId() . '/nouveau', [
+            'tarifs' => [],
+            'libres' => [
+                ['libelle' => 'Hébergement 1 an', 'prix' => '60,50', 'quantite' => '2'],
+                ['libelle' => '   ', 'prix' => '999', 'quantite' => '1'], // ignorée : pas de libellé
+                ['libelle' => 'Shooting photo', 'prix' => '-20', 'quantite' => '1'], // prix négatif ramené à 0
+            ],
+        ]);
+        self::assertResponseRedirects('/admin/projets/' . $project->getId());
+
+        $this->em->clear();
+        $project = $this->em->getRepository(Project::class)->find($project->getId());
+        $titres = array_map(fn ($s) => $s->getTitre(), $project->getSteps()->toArray());
+        self::assertSame(['Socle du site', 'Hébergement 1 an (×2)', 'Shooting photo'], $titres);
+
+        $devis = $this->em->getRepository(Devis::class)->findOneBy(['project' => $project]);
+        self::assertSame(390.0 + 2 * 60.5, $devis->getTotal());
+        self::assertCount(3, $devis->getLignes());
+
+        // Dans le PDF : les prestations de la grille sont regroupées, les lignes libres restent séparées
+        $html = static::getContainer()->get('twig')->render('admin/devis/pdf.html.twig', [
+            'devis' => $devis,
+            'client' => $project->getClient(),
+            'project' => $project,
+            'emetteur' => ['nom' => 'Neblink', 'adresse' => '', 'email' => '', 'telephone' => '', 'siret' => ''],
+            'validiteJours' => 30,
+            'logo' => null,
+        ]);
+        self::assertSame(1, substr_count($html, 'Création de site web</strong>'));
+        self::assertStringNotContainsString('Socle du site', $html);
+        self::assertStringContainsString('Hébergement 1 an', $html);
+        self::assertStringContainsString('121,00 €', $html);
+        self::assertStringContainsString('511,00 €', $html);
+    }
+
     public function testDevisDepuisUnClientCreeUnNouveauProjet(): void
     {
         $this->client->request('GET', '/admin/devis/client/' . $this->clientEntity->getId() . '/nouveau');

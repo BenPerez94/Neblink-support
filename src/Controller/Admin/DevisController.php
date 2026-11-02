@@ -7,7 +7,6 @@ use App\Entity\Devis;
 use App\Entity\Document;
 use App\Entity\Project;
 use App\Entity\ProjectStep;
-use App\Entity\Tarif;
 use App\Repository\TarifRepository;
 use App\Service\DevisPdfGenerator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,18 +44,19 @@ class DevisController extends AbstractController
 
     private function handle(Request $request, Client $client, ?Project $project): Response
     {
-        $old = ['tarifs' => [], 'quantites' => [], 'project' => '', 'titre' => 'Site web'];
+        $old = ['tarifs' => [], 'quantites' => [], 'libres' => [], 'project' => '', 'titre' => 'Site web'];
 
         if ($request->isMethod('POST')) {
             $old = [
                 'tarifs' => array_map('intval', $request->request->all('tarifs')),
                 'quantites' => $request->request->all('quantites'),
+                'libres' => $this->parseLignesLibres($request->request->all('libres')),
                 'project' => (string) $request->request->get('project', ''),
                 'titre' => trim((string) $request->request->get('titre', '')),
             ];
 
             $error = null;
-            $lignes = $this->buildLignes($old['tarifs'], $old['quantites']);
+            $lignes = [...$this->buildLignes($old['tarifs'], $old['quantites']), ...$old['libres']];
 
             $targetProject = $project;
             if ($targetProject === null && $old['project'] !== '') {
@@ -104,7 +104,7 @@ class DevisController extends AbstractController
      * @param int[] $ids
      * @param array<int|string, mixed> $quantites
      *
-     * @return list<array{tarif: Tarif, quantite: int}>
+     * @return list<array{libelle: string, description: ?string, prix: float, quantite: int, unite: ?string}>
      */
     private function buildLignes(array $ids, array $quantites): array
     {
@@ -118,14 +118,49 @@ class DevisController extends AbstractController
                 ? 1
                 : max(1, min(99, (int) ($quantites[$tarif->getId()] ?? 1)));
 
-            $lignes[] = ['tarif' => $tarif, 'quantite' => $quantite];
+            $lignes[] = [
+                'libelle' => $tarif->getLibelle(),
+                'description' => $tarif->getDescription(),
+                'prix' => $tarif->getPrix(),
+                'quantite' => $quantite,
+                'unite' => $tarif->getUnite(),
+            ];
         }
 
         return $lignes;
     }
 
     /**
-     * @param list<array{tarif: Tarif, quantite: int}> $lignes
+     * Lignes saisies à la main : une ligne sans libellé est ignorée.
+     *
+     * @param array<int|string, mixed> $rows
+     *
+     * @return list<array{libelle: string, description: ?string, prix: float, quantite: int, unite: ?string}>
+     */
+    private function parseLignesLibres(array $rows): array
+    {
+        $lignes = [];
+        foreach ($rows as $row) {
+            $libelle = is_array($row) ? trim((string) ($row['libelle'] ?? '')) : '';
+            if ($libelle === '') {
+                continue;
+            }
+
+            $lignes[] = [
+                'libelle' => mb_substr($libelle, 0, 150),
+                'description' => null,
+                'prix' => max(0.0, round((float) str_replace(',', '.', (string) ($row['prix'] ?? '0')), 2)),
+                'quantite' => max(1, min(99, (int) ($row['quantite'] ?? 1))),
+                'unite' => null,
+                'libre' => true,
+            ];
+        }
+
+        return $lignes;
+    }
+
+    /**
+     * @param list<array{libelle: string, description: ?string, prix: float, quantite: int, unite: ?string}> $lignes
      */
     private function createDevis(Client $client, ?Project $project, string $titreProjet, array $lignes): Devis
     {
@@ -139,23 +174,16 @@ class DevisController extends AbstractController
 
             $position = $project->getSteps()->filter(fn (ProjectStep $s) => $s->getParent() === null)->count();
             $total = 0.0;
-            $snapshot = [];
 
-            foreach ($lignes as ['tarif' => $tarif, 'quantite' => $quantite]) {
-                $total += $tarif->getPrix() * $quantite;
-                $snapshot[] = [
-                    'libelle' => $tarif->getLibelle(),
-                    'description' => $tarif->getDescription(),
-                    'prix' => $tarif->getPrix(),
-                    'quantite' => $quantite,
-                    'unite' => $tarif->getUnite(),
-                ];
+            foreach ($lignes as $ligne) {
+                $quantite = $ligne['quantite'];
+                $total += $ligne['prix'] * $quantite;
 
                 $step = new ProjectStep();
                 $step->setTitre($quantite > 1
-                    ? sprintf('%s (×%d%s)', $tarif->getLibelle(), $quantite, $tarif->getUnite() === 'h' ? ' h' : '')
-                    : $tarif->getLibelle());
-                $step->setDescription($tarif->getDescription());
+                    ? sprintf('%s (×%d%s)', $ligne['libelle'], $quantite, $ligne['unite'] === 'h' ? ' h' : '')
+                    : $ligne['libelle']);
+                $step->setDescription($ligne['description']);
                 $step->setProject($project);
                 $step->setPosition($position++);
                 $this->em->persist($step);
@@ -164,7 +192,7 @@ class DevisController extends AbstractController
             $devis = new Devis();
             $devis->setProject($project);
             $devis->setTotal($total);
-            $devis->setLignes($snapshot);
+            $devis->setLignes($lignes);
             $this->em->persist($devis);
             $this->em->flush();
 

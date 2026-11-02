@@ -394,6 +394,7 @@ function initDevisBuilder() {
     const countEl = form.querySelector('[data-devis-count]');
     const projectInput = form.querySelector('[data-devis-project-input]');
     const newProject = form.querySelector('[data-devis-new-project]');
+    const libresList = form.querySelector('[data-devis-libres]');
     const formatEuros = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
 
     const update = () => {
@@ -426,12 +427,36 @@ function initDevisBuilder() {
             if (qtyWrap) qtyWrap.style.display = active ? 'flex' : 'none';
         });
 
+        libresList.querySelectorAll('[data-devis-libre]').forEach(row => {
+            const libelle = row.querySelector('input[type="text"]').value.trim();
+            if (libelle === '') return;
+            count++;
+            const quantity = Math.max(1, parseInt(row.querySelector('[data-devis-libre-qty]').value, 10) || 1);
+            total += Math.max(0, parseFloat(row.querySelector('[data-devis-libre-prix]').value) || 0) * quantity;
+        });
+
         totalEl.textContent = formatEuros(total);
         countEl.textContent = count;
         if (projectInput && newProject) {
             newProject.style.display = projectInput.value === '' ? '' : 'none';
         }
     };
+
+    let nextLibre = libresList.children.length;
+    form.querySelector('[data-devis-libre-add]').addEventListener('click', () => {
+        const template = form.querySelector('[data-devis-libre-template]');
+        libresList.insertAdjacentHTML('beforeend', template.innerHTML.replaceAll('__INDEX__', nextLibre++));
+        libresList.lastElementChild.querySelector('input[type="text"]').focus();
+        renderIcons();
+        update();
+    });
+
+    libresList.addEventListener('click', (e) => {
+        const remove = e.target.closest('[data-devis-libre-remove]');
+        if (!remove) return;
+        remove.closest('[data-devis-libre]').remove();
+        update();
+    });
 
     form.addEventListener('change', update);
     form.addEventListener('input', update);
