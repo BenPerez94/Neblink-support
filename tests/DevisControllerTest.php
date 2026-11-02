@@ -127,6 +127,74 @@ class DevisControllerTest extends WebTestCase
         self::assertStringContainsString('511,00 €', $html);
     }
 
+    /**
+     * @return iterable<string, array{string, string, float}>
+     */
+    public static function remises(): iterable
+    {
+        yield 'montant fixe' => ['50', 'eur', 340.0];
+        yield 'pourcentage' => ['10', 'pct', 351.0];
+        yield 'virgule décimale' => ['12,5', 'eur', 377.5];
+        yield 'plafonnée au sous-total' => ['9999', 'eur', 0.0];
+        yield 'pourcentage plafonné à 100' => ['250', 'pct', 0.0];
+        yield 'aucune remise' => ['0', 'eur', 390.0];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('remises')]
+    public function testRemiseVientEnDeductionDuTotal(string $valeur, string $type, float $totalAttendu): void
+    {
+        $project = (new Project())->setTitre('Site remise')->setClient($this->clientEntity);
+        $this->em->persist($project);
+        $this->em->flush();
+
+        $this->client->request('POST', '/admin/devis/projet/' . $project->getId() . '/nouveau', [
+            'tarifs' => [],
+            'remise' => $valeur,
+            'remise_type' => $type,
+        ]);
+        self::assertResponseRedirects('/admin/projets/' . $project->getId());
+
+        $this->em->clear();
+        $project = $this->em->getRepository(Project::class)->find($project->getId());
+        $devis = $this->em->getRepository(Devis::class)->findOneBy(['project' => $project]);
+
+        self::assertSame($totalAttendu, $devis->getTotal());
+        self::assertSame($totalAttendu, $devis->getDocument()->getMontant());
+        self::assertCount(1, $project->getSteps(), 'La remise ne crée pas de tâche.');
+        self::assertCount($totalAttendu === 390.0 ? 1 : 2, $devis->getLignes());
+    }
+
+    public function testRemiseApparaitSurLePdf(): void
+    {
+        $project = (new Project())->setTitre('Site remise pdf')->setClient($this->clientEntity);
+        $this->em->persist($project);
+        $this->em->flush();
+
+        $this->client->request('POST', '/admin/devis/projet/' . $project->getId() . '/nouveau', [
+            'tarifs' => [],
+            'remise' => '10',
+            'remise_type' => 'pct',
+        ]);
+
+        $this->em->clear();
+        $project = $this->em->getRepository(Project::class)->find($project->getId());
+        $devis = $this->em->getRepository(Devis::class)->findOneBy(['project' => $project]);
+
+        $html = static::getContainer()->get('twig')->render('admin/devis/pdf.html.twig', [
+            'devis' => $devis,
+            'client' => $project->getClient(),
+            'project' => $project,
+            'emetteur' => ['nom' => 'Neblink', 'adresse' => '', 'email' => '', 'telephone' => '', 'siret' => ''],
+            'validiteJours' => 30,
+            'logo' => null,
+        ]);
+        self::assertStringContainsString('Remise 10 %', $html);
+        self::assertStringContainsString('- 39,00 €', $html);
+        self::assertStringContainsString('351,00 €', $html);
+        // Le prix de la ligne principale reste le sous-total, pas le total remisé
+        self::assertStringContainsString('390,00 €', $html);
+    }
+
     public function testDevisDepuisUnClientCreeUnNouveauProjet(): void
     {
         $this->client->request('GET', '/admin/devis/client/' . $this->clientEntity->getId() . '/nouveau');

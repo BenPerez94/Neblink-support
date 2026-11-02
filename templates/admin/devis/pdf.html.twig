@@ -77,8 +77,9 @@
             {# Les prestations de la grille sont regroupées en une ligne (le détail reste en interne, dans les étapes du projet).
                Les lignes saisies à la main apparaissent séparément. #}
             {% set libres = devis.lignes|filter(l => l.libre ?? false) %}
+            {% set remises = devis.lignes|filter(l => l.remise ?? false) %}
             {% set base = 0 %}
-            {% for ligne in devis.lignes|filter(l => not (l.libre ?? false)) %}
+            {% for ligne in devis.lignes|filter(l => not (l.libre ?? false) and not (l.remise ?? false)) %}
                 {% set base = base + ligne.prix * ligne.quantite %}
             {% endfor %}
             {% if base > 0 or libres is empty %}
@@ -95,6 +96,14 @@
                     <td class="right">{{ ligne.quantite }}</td>
                     <td class="right">{{ ligne.prix|number_format(2, ',', ' ') }} €</td>
                     <td class="right">{{ (ligne.prix * ligne.quantite)|number_format(2, ',', ' ') }} €</td>
+                </tr>
+            {% endfor %}
+            {% for ligne in remises %}
+                <tr>
+                    <td><strong>{{ ligne.libelle }}</strong></td>
+                    <td class="right">1</td>
+                    <td class="right">- {{ (-ligne.prix)|number_format(2, ',', ' ') }} €</td>
+                    <td class="right">- {{ (-ligne.prix)|number_format(2, ',', ' ') }} €</td>
                 </tr>
             {% endfor %}
         </tbody>

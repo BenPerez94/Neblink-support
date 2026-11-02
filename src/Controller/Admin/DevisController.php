@@ -44,19 +44,26 @@ class DevisController extends AbstractController
 
     private function handle(Request $request, Client $client, ?Project $project): Response
     {
-        $old = ['tarifs' => [], 'quantites' => [], 'libres' => [], 'project' => '', 'titre' => 'Site web'];
+        $old = ['tarifs' => [], 'quantites' => [], 'libres' => [], 'remise' => '', 'remise_type' => 'eur', 'remise_libelle' => '', 'project' => '', 'titre' => 'Site web'];
 
         if ($request->isMethod('POST')) {
             $old = [
                 'tarifs' => array_map('intval', $request->request->all('tarifs')),
                 'quantites' => $request->request->all('quantites'),
                 'libres' => $this->parseLignesLibres($request->request->all('libres')),
+                'remise' => trim((string) $request->request->get('remise', '')),
+                'remise_type' => $request->request->get('remise_type') === 'pct' ? 'pct' : 'eur',
+                'remise_libelle' => mb_substr(trim((string) $request->request->get('remise_libelle', '')), 0, 100),
                 'project' => (string) $request->request->get('project', ''),
                 'titre' => trim((string) $request->request->get('titre', '')),
             ];
 
             $error = null;
             $lignes = [...$this->buildLignes($old['tarifs'], $old['quantites']), ...$old['libres']];
+            $remise = $this->buildRemise($lignes, $old['remise'], $old['remise_type'], $old['remise_libelle']);
+            if ($remise !== null) {
+                $lignes[] = $remise;
+            }
 
             $targetProject = $project;
             if ($targetProject === null && $old['project'] !== '') {
@@ -76,7 +83,7 @@ class DevisController extends AbstractController
 
             if ($error === null) {
                 $devis = $this->createDevis($client, $targetProject, $old['titre'], $lignes);
-                $nbTaches = count($lignes);
+                $nbTaches = count(array_filter($lignes, fn (array $l) => !($l['remise'] ?? false)));
 
                 $this->addFlash('success', sprintf(
                     'Devis %s généré (%d tâche%s ajoutée%s au projet).',
@@ -131,6 +138,36 @@ class DevisController extends AbstractController
     }
 
     /**
+     * Ligne de remise (montant négatif) calculée sur le sous-total, sans jamais dépasser celui-ci.
+     *
+     * @param list<array{prix: float, quantite: int}> $lignes
+     *
+     * @return array{libelle: string, description: null, prix: float, quantite: int, unite: null, remise: true}|null
+     */
+    private function buildRemise(array $lignes, string $valeur, string $type, string $libelle): ?array
+    {
+        $valeur = round((float) str_replace(',', '.', $valeur), 2);
+        if ($valeur <= 0) {
+            return null;
+        }
+
+        $sousTotal = array_sum(array_map(fn (array $l) => $l['prix'] * $l['quantite'], $lignes));
+        $pourcentage = $type === 'pct' ? min(100.0, $valeur) : null;
+        $montant = round(min($sousTotal, $pourcentage !== null ? $sousTotal * $pourcentage / 100 : $valeur), 2);
+        if ($montant <= 0) {
+            return null;
+        }
+
+        if ($libelle === '') {
+            $libelle = $pourcentage !== null
+                ? sprintf('Remise %s %%', rtrim(rtrim(number_format($pourcentage, 2, ',', ''), '0'), ','))
+                : 'Remise';
+        }
+
+        return ['libelle' => $libelle, 'description' => null, 'prix' => -$montant, 'quantite' => 1, 'unite' => null, 'remise' => true];
+    }
+
+    /**
      * Lignes saisies à la main : une ligne sans libellé est ignorée.
      *
      * @param array<int|string, mixed> $rows
@@ -178,6 +215,11 @@ class DevisController extends AbstractController
             foreach ($lignes as $ligne) {
                 $quantite = $ligne['quantite'];
                 $total += $ligne['prix'] * $quantite;
+
+                // La remise n'est pas une tâche : elle n'apparaît que dans le devis
+                if ($ligne['remise'] ?? false) {
+                    continue;
+                }
 
                 $step = new ProjectStep();
                 $step->setTitre($quantite > 1

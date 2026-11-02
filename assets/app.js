@@ -13,7 +13,7 @@ import './styles/app.css';
 import Swal from 'sweetalert2';
 
 
-import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft, Share2, CalendarCheck, Zap, Wallet } from 'lucide';
+import { createIcons, Wrench, Settings, Lightbulb, MapPin, Phone, Check, RefreshCw, ArrowRight, Star, User, MessageCircle, Receipt, Ban, Clock, ShieldCheck, Code, LayoutDashboard, ShoppingCart, Calendar, Store, Plus, Mail, LogOut, Eye, EyeOff, ExternalLink, Trash2, MoreVertical, Users, FileText, ChevronRight, ChevronDown, X, UserPlus, UserCheck, FolderKanban, Euro, Monitor, Download, Filter, Flag, Pencil, ListChecks, AlignLeft, Heading2, Heading3, Bold, Italic, Underline, Link, List, ListOrdered, Quote, Image, ImagePlus, Minus, Undo, Redo, Newspaper, Tag, Tags, Search, ArrowLeft, Share2, CalendarCheck, Zap, Wallet, Percent } from 'lucide';
 
 function renderIcons() {
     createIcons({
@@ -81,6 +81,7 @@ function renderIcons() {
             CalendarCheck,
             Zap,
             Wallet,
+            Percent,
             Tags,
             Search,
             ArrowLeft,
@@ -395,6 +396,8 @@ function initDevisBuilder() {
     const projectInput = form.querySelector('[data-devis-project-input]');
     const newProject = form.querySelector('[data-devis-new-project]');
     const libresList = form.querySelector('[data-devis-libres]');
+    const remiseInput = form.querySelector('[data-devis-remise]');
+    const remiseInfo = form.querySelector('[data-devis-remise-info]');
     const formatEuros = (n) => n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
 
     const update = () => {
@@ -435,7 +438,18 @@ function initDevisBuilder() {
             total += Math.max(0, parseFloat(row.querySelector('[data-devis-libre-prix]').value) || 0) * quantity;
         });
 
-        totalEl.textContent = formatEuros(total);
+        // Même règle que côté serveur : la remise ne dépasse jamais le sous-total
+        let remise = 0;
+        const remiseValue = Math.max(0, parseFloat(remiseInput.value) || 0);
+        if (remiseValue > 0) {
+            const isPct = form.querySelector('[data-devis-remise-type]:checked').value === 'pct';
+            remise = Math.min(total, isPct ? total * Math.min(100, remiseValue) / 100 : remiseValue);
+            remise = Math.round(remise * 100) / 100;
+        }
+        remiseInfo.style.display = remise > 0 ? '' : 'none';
+        remiseInfo.textContent = ` · remise −${formatEuros(remise)}`;
+
+        totalEl.textContent = formatEuros(total - remise);
         countEl.textContent = count;
         if (projectInput && newProject) {
             newProject.style.display = projectInput.value === '' ? '' : 'none';
